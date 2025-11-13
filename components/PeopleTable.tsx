@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+// Types
 interface Person {
   id: number;
   name: string;
@@ -9,107 +10,176 @@ interface Person {
   team?: string;
 }
 
+type SortDirection = 'asc' | 'desc';
+type FilterKey = keyof Person;
+type Filters = Partial<Record<FilterKey, string>>;
+
+interface Column {
+  key: FilterKey;
+  label: string;
+}
+
+// Constants
+const PAGE_SIZE = 40;
+const COLUMNS: Column[] = [
+  { key: 'id', label: 'ID' },
+  { key: 'name', label: 'Name' },
+  { key: 'surname', label: 'Surname' },
+  { key: 'email', label: 'Email' },
+  { key: 'team', label: 'Team' },
+  { key: 'level', label: 'Livello' },
+];
+
+const SELECT_FILTER_KEYS: FilterKey[] = ['team', 'level'];
+
+// Utility functions
+const getUniqueValues = (items: Person[], key: FilterKey): string[] =>
+  Array.from(
+    new Set(items.map((item) => item[key]).filter(Boolean) as string[])
+  );
+
+const matchesFilter = (person: Person, key: string, value: string): boolean => {
+  const field = person[key as FilterKey];
+  if (field === undefined || field === null) return false;
+
+  const fieldStr = String(field).toLowerCase();
+  const valueStr = value.toLowerCase();
+
+  return SELECT_FILTER_KEYS.includes(key as FilterKey)
+    ? fieldStr === valueStr
+    : fieldStr.includes(valueStr);
+};
+
+const compareValues = (a: unknown, b: unknown, dir: SortDirection): number => {
+  if (typeof a === 'number' && typeof b === 'number') {
+    return dir === 'asc' ? a - b : b - a;
+  }
+  const comparison = String(a).localeCompare(String(b));
+  return dir === 'asc' ? comparison : -comparison;
+};
+
+// Custom hook for table logic
+const useTableData = (people: Person[]) => {
+  const [sortBy, setSortBy] = useState<FilterKey>('id');
+  const [sortDir, setSortDir] = useState<SortDirection>('asc');
+  const [filters, setFilters] = useState<Filters>({});
+  const [page, setPage] = useState(1);
+
+  const handleSort = useCallback((col: FilterKey) => {
+    setSortBy((prev) => {
+      if (prev === col) {
+        setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+        return prev;
+      }
+      setSortDir('asc');
+      return col;
+    });
+    setPage(1);
+  }, []);
+
+  const handleFilterChange = useCallback((key: FilterKey, value: string) => {
+    setFilters((f) => ({ ...f, [key]: value }));
+    setPage(1);
+  }, []);
+
+  const filteredPeople = useMemo(
+    () =>
+      people.filter((person) =>
+        Object.entries(filters).every(
+          ([key, value]) => !value || matchesFilter(person, key, value)
+        )
+      ),
+    [people, filters]
+  );
+
+  const sortedPeople = useMemo(
+    () =>
+      [...filteredPeople].sort((a, b) => {
+        const aVal = a[sortBy] ?? '';
+        const bVal = b[sortBy] ?? '';
+        return compareValues(aVal, bVal, sortDir);
+      }),
+    [filteredPeople, sortBy, sortDir]
+  );
+
+  const totalPages = Math.max(1, Math.ceil(sortedPeople.length / PAGE_SIZE));
+  const paginatedPeople = useMemo(
+    () => sortedPeople.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [sortedPeople, page]
+  );
+
+  const uniqueOptions = useMemo(
+    () => ({
+      team: getUniqueValues(people, 'team'),
+      level: getUniqueValues(people, 'level'),
+    }),
+    [people]
+  );
+
+  return {
+    sortBy,
+    sortDir,
+    filters,
+    page,
+    totalPages,
+    paginatedPeople,
+    sortedPeople,
+    uniqueOptions,
+    handleSort,
+    handleFilterChange,
+    setPage,
+  };
+};
+
 export default function PeopleTable() {
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<keyof Person>('id');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-  const [filters, setFilters] = useState<Partial<Record<keyof Person, string>>>(
-    {}
-  );
-  const [page, setPage] = useState(1);
-  const pageSize = 40;
 
   useEffect(() => {
-    fetch('/api/people')
-      .then((res) => {
+    const fetchPeople = async () => {
+      try {
+        const res = await fetch('/api/people');
         if (!res.ok) throw new Error('Errore nella fetch');
-        return res.json();
-      })
-      .then((data) => {
+        const data = await res.json();
         setPeople(data);
+      } catch (error) {
+        console.error('Errore fetch /api/people:', error);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+      }
+    };
+
+    fetchPeople();
   }, []);
 
-  function handleSort(col: keyof Person) {
-    if (sortBy === col) {
-      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-      setPage(1);
-    } else {
-      setSortBy(col);
-      setSortDir('asc');
-      setPage(1);
-    }
+  const {
+    sortBy,
+    sortDir,
+    filters,
+    page,
+    totalPages,
+    paginatedPeople,
+    sortedPeople,
+    uniqueOptions,
+    handleSort,
+    handleFilterChange,
+    setPage,
+  } = useTableData(people);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-gray-500 dark:text-gray-400">Caricamento...</div>
+      </div>
+    );
   }
-
-  // Applica i filtri (case-insensitive, AND logico tra tutti i filtri)
-  const filteredPeople = people.filter((person) => {
-    return Object.entries(filters).every(([key, value]) => {
-      if (!value) return true;
-      const field = person[key as keyof Person];
-      if (field === undefined || field === null) return false;
-      // Per i filtri select (team, level) richiediamo match esatto, per gli altri substring
-      if (key === 'team' || key === 'level') {
-        return String(field).toLowerCase() === value.toLowerCase();
-      }
-      return String(field).toLowerCase().includes(value.toLowerCase());
-    });
-  });
-
-  // Handler per cambio filtro che resetta la pagina
-  function handleFilterChange(key: keyof Person, value: string) {
-    setFilters((f) => ({ ...f, [key]: value }));
-    setPage(1);
-  }
-
-  // Applica l'ordinamento
-  const sortedPeople = [...filteredPeople].sort((a, b) => {
-    const aVal = a[sortBy] ?? '';
-    const bVal = b[sortBy] ?? '';
-    if (typeof aVal === 'number' && typeof bVal === 'number') {
-      return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
-    }
-    return sortDir === 'asc'
-      ? String(aVal).localeCompare(String(bVal))
-      : String(bVal).localeCompare(String(aVal));
-  });
-
-  // Paginazione
-  const totalPages = Math.max(1, Math.ceil(sortedPeople.length / pageSize));
-  const paginatedPeople = sortedPeople.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
-
-  if (loading) return <div>Loading...</div>;
-
-  const columns: { key: keyof Person; label: string }[] = [
-    { key: 'id', label: 'ID' },
-    { key: 'name', label: 'Name' },
-    { key: 'surname', label: 'Surname' },
-    { key: 'email', label: 'Email' },
-    { key: 'team', label: 'Team' },
-    { key: 'level', label: 'Livello' },
-  ];
-
-  // Calcola le opzioni uniche per i filtri team e livello
-  const teamOptions = Array.from(
-    new Set(people.map((p) => p.team).filter((t) => t && t !== ''))
-  );
-  const levelOptions = Array.from(
-    new Set(people.map((p) => p.level).filter((l) => l && l !== ''))
-  );
 
   return (
     <div className="mb-16 overflow-x-auto rounded-xl border border-gray-200 bg-white p-2 shadow-lg md:p-4 dark:border-gray-800 dark:bg-[#18181b]">
       <table className="min-w-full text-left text-xs md:text-sm">
         <thead className="sticky top-0 z-10">
           <tr className="bg-linear-to-r from-gray-100 to-gray-200 dark:from-[#232326] dark:to-[#18181b]">
-            {columns.map((col) => (
+            {COLUMNS.map((col) => (
               <th
                 key={col.key}
                 className="cursor-pointer rounded-t px-3 py-3 font-semibold text-gray-700 transition-colors select-none hover:bg-blue-100 dark:text-gray-200 dark:hover:bg-[#232326]"
@@ -146,7 +216,7 @@ export default function PeopleTable() {
             ))}
           </tr>
           <tr className="bg-linear-to-r from-gray-50 to-gray-100 dark:from-[#232326] dark:to-[#18181b]">
-            {columns.map((col) => (
+            {COLUMNS.map((col) => (
               <th key={col.key} className="px-3 py-2">
                 {col.key === 'team' ? (
                   <div className="relative flex items-center">
@@ -172,7 +242,7 @@ export default function PeopleTable() {
                       className="w-full rounded-lg border border-gray-300 bg-white py-1 pr-2 pl-7 text-xs text-gray-700 transition focus:ring-2 focus:ring-blue-300 focus:outline-none dark:border-gray-700 dark:bg-[#18181b] dark:text-gray-200 dark:focus:ring-blue-900"
                     >
                       <option value="">Tutti i team</option>
-                      {teamOptions.map((team) => (
+                      {uniqueOptions.team.map((team) => (
                         <option key={team} value={team}>
                           {team}
                         </option>
@@ -201,7 +271,7 @@ export default function PeopleTable() {
                       className="w-full rounded-lg border border-gray-300 bg-white py-1 pr-2 pl-7 text-xs text-gray-700 transition focus:ring-2 focus:ring-blue-300 focus:outline-none dark:border-gray-700 dark:bg-[#18181b] dark:text-gray-200 dark:focus:ring-blue-900"
                     >
                       <option value="">Tutti i livelli</option>
-                      {levelOptions.map((level) => (
+                      {uniqueOptions.level.map((level) => (
                         <option key={level} value={level}>
                           {level}
                         </option>
@@ -242,7 +312,7 @@ export default function PeopleTable() {
           {paginatedPeople.length === 0 ? (
             <tr>
               <td
-                colSpan={columns.length}
+                colSpan={COLUMNS.length}
                 className="py-8 text-center text-gray-400 dark:text-gray-500"
               >
                 Nessun risultato trovato
