@@ -72,9 +72,7 @@
         "people_email_unique": {
           "name": "people_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
