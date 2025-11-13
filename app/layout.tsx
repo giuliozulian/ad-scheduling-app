@@ -28,7 +28,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-zinc-50 font-sans antialiased dark:bg-black`}
       >
-        <header className="container mx-auto flex items-center gap-3 px-4 py-8">
+        <header className="container mx-auto flex items-center gap-3 py-8">
           <div>
             <Link href="/" className="flex gap-4">
               <video

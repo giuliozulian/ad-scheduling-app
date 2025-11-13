@@ -13,13 +13,14 @@ const pool = new Pool({
 const db = drizzle(pool);
 
 export async function GET() {
-  // Seleziona solo id, firstname, lastname, email
   const result = await db
     .select({
       id: people.id,
       name: people.firstname,
       surname: people.lastname,
       email: people.email,
+      team: people.team,
+      level: people.level,
     })
     .from(people);
   return NextResponse.json(result);
