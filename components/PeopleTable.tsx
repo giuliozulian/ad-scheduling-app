@@ -9,7 +9,9 @@ import {
 } from './ui/table';
 import { Pagination, PaginationItem } from './ui/pagination';
 import { Button } from './ui/button';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
+import EditPersonForm from './EditPersonForm';
+import { Dialog } from './ui/dialog';
 
 // Types
 interface Person {
@@ -147,6 +149,8 @@ export default function PeopleTable() {
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editPerson, setEditPerson] = useState<Person | null>(null);
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Sei sicuro di voler eliminare questa persona?'))
@@ -380,19 +384,32 @@ export default function PeopleTable() {
                   {person.level ?? 'N/A'}
                 </TableCell>
                 <TableCell className="border-b border-gray-100 px-3 py-2 text-center dark:border-gray-800 dark:bg-inherit">
-                  <Button
-                    size="sm"
-                    onClick={() => handleDelete(person.id)}
-                    disabled={deletingId === person.id}
-                    className="flex items-center justify-center border-red-200 text-red-600 hover:bg-red-50 dark:border-red-700 dark:bg-[#333] dark:text-red-400 dark:hover:bg-red-900"
-                    aria-label="Elimina"
-                  >
-                    {deletingId === person.id ? (
-                      <span className="animate-pulse">...</span>
-                    ) : (
-                      <Trash2 size={18} />
-                    )}
-                  </Button>
+                  <div className="flex items-center justify-center gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => handleDelete(person.id)}
+                      disabled={deletingId === person.id}
+                      className="flex items-center justify-center border-red-200 text-red-600 hover:bg-red-50 dark:border-red-700 dark:bg-[#333] dark:text-red-400 dark:hover:bg-red-900"
+                      aria-label="Elimina"
+                    >
+                      {deletingId === person.id ? (
+                        <span className="animate-pulse">...</span>
+                      ) : (
+                        <Trash2 size={18} />
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="flex items-center justify-center border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-700 dark:bg-[#333] dark:text-blue-400 dark:hover:bg-blue-900"
+                      aria-label="Modifica"
+                      onClick={() => {
+                        setEditPerson(person);
+                        setEditModalOpen(true);
+                      }}
+                    >
+                      <Pencil size={18} />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
@@ -456,6 +473,23 @@ export default function PeopleTable() {
           </PaginationItem>
         </ul>
       </Pagination>
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <div className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-100">
+          Modifica persona
+        </div>
+        {editPerson && (
+          <EditPersonForm
+            person={editPerson}
+            onClose={() => setEditModalOpen(false)}
+            onSave={(updated: Person) => {
+              setPeople((prev) =>
+                prev.map((p) => (p.id === updated.id ? updated : p))
+              );
+              setEditModalOpen(false);
+            }}
+          />
+        )}
+      </Dialog>
     </div>
   );
 }
