@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-zinc-50 font-sans antialiased dark:bg-black`}
+        className={`${geistSans.variable} ${geistMono.variable} dark bg-black font-sans antialiased`}
       >
         <header className="container mx-auto flex items-center gap-3 py-8">
           <div>

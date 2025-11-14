@@ -1,4 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from './ui/table';
+import { Pagination, PaginationItem } from './ui/pagination';
+import { Button } from './ui/button';
 
 // Types
 interface Person {
@@ -175,21 +185,21 @@ export default function PeopleTable() {
   }
 
   return (
-    <div className="mb-16 overflow-x-auto rounded-xl border border-gray-200 bg-white p-2 shadow-lg md:p-4 dark:border-gray-800 dark:bg-[#18181b]">
-      <table className="min-w-full text-left text-xs md:text-sm">
-        <thead className="sticky top-0 z-10">
-          <tr className="bg-linear-to-r from-gray-100 to-gray-200 dark:from-[#232326] dark:to-[#18181b]">
+    <div className="mb-16 overflow-x-auto rounded-xl border border-gray-200 bg-white p-2 shadow-lg md:p-4 dark:border-gray-800 dark:bg-[#101014]">
+      <Table className="min-w-full bg-white text-left text-xs md:text-sm dark:bg-[#18181b]">
+        <TableHeader className="sticky top-0 z-10">
+          <TableRow className="bg-gray-100 dark:bg-[#232326]">
             {COLUMNS.map((col) => (
-              <th
+              <TableHead
                 key={col.key}
-                className="cursor-pointer rounded-t px-3 py-3 font-semibold text-gray-700 transition-colors select-none hover:bg-blue-100 dark:text-gray-200 dark:hover:bg-[#232326]"
+                className="hover:bg-black-100 cursor-pointer rounded-t px-3 py-3 font-semibold text-gray-700 transition-colors select-none dark:text-gray-200 dark:hover:bg-black/20"
                 onClick={() => handleSort(col.key)}
                 scope="col"
               >
                 <span className="flex items-center gap-1">
                   {col.label}
                   {sortBy === col.key && (
-                    <span className="ml-1 text-blue-600 dark:text-blue-400">
+                    <span className="dark:text-black-400 text-black-600 ml-1">
                       {sortDir === 'asc' ? (
                         <svg
                           width="12"
@@ -212,12 +222,12 @@ export default function PeopleTable() {
                     </span>
                   )}
                 </span>
-              </th>
+              </TableHead>
             ))}
-          </tr>
-          <tr className="bg-linear-to-r from-gray-50 to-gray-100 dark:from-[#232326] dark:to-[#18181b]">
+          </TableRow>
+          <TableRow className="bg-gray-50 dark:bg-[#18181b]">
             {COLUMNS.map((col) => (
-              <th key={col.key} className="px-3 py-2">
+              <TableHead key={col.key} className="px-3 py-2">
                 {col.key === 'team' ? (
                   <div className="relative flex items-center">
                     <svg
@@ -239,7 +249,7 @@ export default function PeopleTable() {
                       onChange={(e) =>
                         handleFilterChange('team', e.target.value)
                       }
-                      className="w-full rounded-lg border border-gray-300 bg-white py-1 pr-2 pl-7 text-xs text-gray-700 transition focus:ring-2 focus:ring-blue-300 focus:outline-none dark:border-gray-700 dark:bg-[#18181b] dark:text-gray-200 dark:focus:ring-blue-900"
+                      className="dark:focus:ring-black-900 w-full rounded-lg border border-gray-300 bg-white py-1 pr-2 pl-7 text-xs text-gray-700 transition focus:ring-2 focus:ring-blue-300 focus:outline-none dark:border-gray-700 dark:bg-[#232326] dark:text-gray-200"
                     >
                       <option value="">Tutti i team</option>
                       {uniqueOptions.team.map((team) => (
@@ -268,7 +278,7 @@ export default function PeopleTable() {
                       onChange={(e) =>
                         handleFilterChange('level', e.target.value)
                       }
-                      className="w-full rounded-lg border border-gray-300 bg-white py-1 pr-2 pl-7 text-xs text-gray-700 transition focus:ring-2 focus:ring-blue-300 focus:outline-none dark:border-gray-700 dark:bg-[#18181b] dark:text-gray-200 dark:focus:ring-blue-900"
+                      className="focus:ring-black-300 w-full rounded-lg border border-gray-300 bg-white py-1 pr-2 pl-7 text-xs text-gray-700 transition focus:ring-2 focus:outline-none dark:border-gray-700 dark:bg-[#232326] dark:text-gray-200 dark:focus:ring-blue-900"
                     >
                       <option value="">Tutti i livelli</option>
                       {uniqueOptions.level.map((level) => (
@@ -299,28 +309,28 @@ export default function PeopleTable() {
                         handleFilterChange(col.key, e.target.value)
                       }
                       placeholder={`Filtra...`}
-                      className="w-full rounded-lg border border-gray-300 bg-white py-1 pr-2 pl-7 text-xs text-gray-700 transition focus:ring-2 focus:ring-blue-300 focus:outline-none dark:border-gray-700 dark:bg-[#18181b] dark:text-gray-200 dark:focus:ring-blue-900"
+                      className="w-full rounded-lg border border-gray-300 bg-white py-1 pr-2 pl-7 text-xs text-gray-700 transition focus:ring-2 focus:ring-blue-300 focus:outline-none dark:border-gray-700 dark:bg-[#232326] dark:text-gray-200 dark:focus:ring-blue-900"
                       style={{ minWidth: 0 }}
                     />
                   </div>
                 )}
-              </th>
+              </TableHead>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {paginatedPeople.length === 0 ? (
-            <tr>
-              <td
+            <TableRow>
+              <TableCell
                 colSpan={COLUMNS.length}
                 className="py-8 text-center text-gray-400 dark:text-gray-500"
               >
                 Nessun risultato trovato
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ) : (
             paginatedPeople.map((person, idx) => (
-              <tr
+              <TableRow
                 key={person.id}
                 className={
                   'transition hover:bg-blue-50 dark:hover:bg-[#232346]' +
@@ -329,70 +339,86 @@ export default function PeopleTable() {
                     : ' bg-gray-50 dark:bg-[#232326]')
                 }
               >
-                <td className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-100">
+                <TableCell className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:bg-inherit dark:text-gray-100">
                   {person.id}
-                </td>
-                <td className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-100">
+                </TableCell>
+                <TableCell className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:bg-inherit dark:text-gray-100">
                   {person.name}
-                </td>
-                <td className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-100">
+                </TableCell>
+                <TableCell className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:bg-inherit dark:text-gray-100">
                   {person.surname}
-                </td>
-                <td className="border-b border-gray-100 px-3 py-2 font-medium whitespace-nowrap text-blue-700 dark:border-gray-800 dark:text-blue-400">
+                </TableCell>
+                <TableCell className="border-b border-gray-100 px-3 py-2 font-medium whitespace-nowrap text-blue-700 dark:border-gray-800 dark:bg-inherit dark:text-blue-400">
                   {person.email}
-                </td>
-                <td className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-100">
+                </TableCell>
+                <TableCell className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:bg-inherit dark:text-gray-100">
                   {person.team ?? 'N/A'}
-                </td>
-                <td className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-100">
+                </TableCell>
+                <TableCell className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:bg-inherit dark:text-gray-100">
                   {person.level ?? 'N/A'}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
       {/* Pagination controls */}
-      <div className="mt-4 flex flex-col items-center justify-between gap-2 md:flex-row">
-        <div className="text-xs text-gray-500 dark:text-gray-400">
+      <Pagination className="mt-4 flex flex-col items-center justify-between gap-2 md:flex-row">
+        <div className="mb-2 text-xs text-gray-500 md:mb-0 dark:bg-[#101014] dark:text-gray-400">
           Pagina {page} di {totalPages} — {sortedPeople.length} risultati
         </div>
-        <div className="flex gap-1">
-          <button
-            className="rounded bg-gray-200 px-2 py-1 text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 dark:text-gray-200"
-            onClick={() => setPage(1)}
-            disabled={page === 1}
-            aria-label="Prima pagina"
-          >
-            «
-          </button>
-          <button
-            className="rounded bg-gray-200 px-2 py-1 text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 dark:text-gray-200"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-            aria-label="Pagina precedente"
-          >
-            ‹
-          </button>
-          <span className="px-2 py-1 font-mono text-xs">{page}</span>
-          <button
-            className="rounded bg-gray-200 px-2 py-1 text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 dark:text-gray-200"
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page === totalPages}
-            aria-label="Pagina successiva"
-          >
-            ›
-          </button>
-          <button
-            className="rounded bg-gray-200 px-2 py-1 text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 dark:text-gray-200"
-            onClick={() => setPage(totalPages)}
-            disabled={page === totalPages}
-            aria-label="Ultima pagina"
-          >
-            »
-          </button>
-        </div>
-      </div>
+        <ul className="flex gap-1">
+          <PaginationItem>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(1)}
+              disabled={page === 1}
+              aria-label="Prima pagina"
+            >
+              «
+            </Button>
+          </PaginationItem>
+          <PaginationItem>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              aria-label="Pagina precedente"
+            >
+              ‹
+            </Button>
+          </PaginationItem>
+          <PaginationItem>
+            <span className="px-2 py-1 font-mono text-xs dark:bg-[#101014] dark:text-gray-200">
+              {page}
+            </span>
+          </PaginationItem>
+          <PaginationItem>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              aria-label="Pagina successiva"
+            >
+              ›
+            </Button>
+          </PaginationItem>
+          <PaginationItem>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(totalPages)}
+              disabled={page === totalPages}
+              aria-label="Ultima pagina"
+            >
+              »
+            </Button>
+          </PaginationItem>
+        </ul>
+      </Pagination>
     </div>
   );
 }
