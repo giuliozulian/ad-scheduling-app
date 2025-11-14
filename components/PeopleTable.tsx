@@ -9,6 +9,7 @@ import {
 } from './ui/table';
 import { Pagination, PaginationItem } from './ui/pagination';
 import { Button } from './ui/button';
+import { Trash2 } from 'lucide-react';
 
 // Types
 interface Person {
@@ -39,6 +40,7 @@ const COLUMNS: Column[] = [
   { key: 'team', label: 'Team' },
   { key: 'level', label: 'Livello' },
 ];
+const ACTION_COLUMN_LABEL = 'Azione';
 
 const SELECT_FILTER_KEYS: FilterKey[] = ['team', 'level'];
 
@@ -144,6 +146,22 @@ const useTableData = (people: Person[]) => {
 export default function PeopleTable() {
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const handleDelete = async (id: number) => {
+    if (!window.confirm('Sei sicuro di voler eliminare questa persona?'))
+      return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/people/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Errore eliminazione');
+      setPeople((prev) => prev.filter((p) => p.id !== id));
+    } catch {
+      alert("Errore durante l'eliminazione");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   useEffect(() => {
     const fetchPeople = async () => {
@@ -185,14 +203,14 @@ export default function PeopleTable() {
   }
 
   return (
-    <div className="mb-16 overflow-x-auto rounded-xl border border-gray-200 bg-white p-2 shadow-lg md:p-4 dark:border-gray-800 dark:bg-[#101014]">
+    <div className="mb-16 overflow-x-auto rounded-xl border border-black/10 bg-white p-2 shadow-lg md:p-2 dark:border-black/10 dark:bg-[#222]">
       <Table className="min-w-full bg-white text-left text-xs md:text-sm dark:bg-[#18181b]">
         <TableHeader className="sticky top-0 z-10">
           <TableRow className="bg-gray-100 dark:bg-[#232326]">
             {COLUMNS.map((col) => (
               <TableHead
                 key={col.key}
-                className="hover:bg-black-100 cursor-pointer rounded-t px-3 py-3 font-semibold text-gray-700 transition-colors select-none dark:text-gray-200 dark:hover:bg-black/20"
+                className="hover:bg-black-100 cursor-pointer rounded-t px-3 py-3 font-semibold text-gray-700 transition-colors select-none dark:text-gray-200 dark:hover:bg-[#555]"
                 onClick={() => handleSort(col.key)}
                 scope="col"
               >
@@ -224,6 +242,9 @@ export default function PeopleTable() {
                 </span>
               </TableHead>
             ))}
+            <TableHead className="px-3 py-3 text-center font-semibold text-gray-700 dark:text-gray-200">
+              {ACTION_COLUMN_LABEL}
+            </TableHead>
           </TableRow>
           <TableRow className="bg-gray-50 dark:bg-[#18181b]">
             {COLUMNS.map((col) => (
@@ -316,6 +337,7 @@ export default function PeopleTable() {
                 )}
               </TableHead>
             ))}
+            <TableHead className="px-3 py-2" />
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -333,7 +355,7 @@ export default function PeopleTable() {
               <TableRow
                 key={person.id}
                 className={
-                  'transition hover:bg-blue-50 dark:hover:bg-[#232346]' +
+                  'transition hover:bg-blue-50 dark:hover:bg-[#444]' +
                   (idx % 2 === 0
                     ? ' bg-white dark:bg-[#18181b]'
                     : ' bg-gray-50 dark:bg-[#232326]')
@@ -348,7 +370,7 @@ export default function PeopleTable() {
                 <TableCell className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:bg-inherit dark:text-gray-100">
                   {person.surname}
                 </TableCell>
-                <TableCell className="border-b border-gray-100 px-3 py-2 font-medium whitespace-nowrap text-blue-700 dark:border-gray-800 dark:bg-inherit dark:text-blue-400">
+                <TableCell className="border-b border-gray-100 px-3 py-2 font-bold font-medium whitespace-nowrap text-white dark:border-gray-800 dark:bg-inherit dark:text-white">
                   {person.email}
                 </TableCell>
                 <TableCell className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:bg-inherit dark:text-gray-100">
@@ -356,6 +378,21 @@ export default function PeopleTable() {
                 </TableCell>
                 <TableCell className="border-b border-gray-100 px-3 py-2 whitespace-nowrap text-gray-900 dark:border-gray-800 dark:bg-inherit dark:text-gray-100">
                   {person.level ?? 'N/A'}
+                </TableCell>
+                <TableCell className="border-b border-gray-100 px-3 py-2 text-center dark:border-gray-800 dark:bg-inherit">
+                  <Button
+                    size="sm"
+                    onClick={() => handleDelete(person.id)}
+                    disabled={deletingId === person.id}
+                    className="flex items-center justify-center border-red-200 text-red-600 hover:bg-red-50 dark:border-red-700 dark:bg-[#333] dark:text-red-400 dark:hover:bg-red-900"
+                    aria-label="Elimina"
+                  >
+                    {deletingId === person.id ? (
+                      <span className="animate-pulse">...</span>
+                    ) : (
+                      <Trash2 size={18} />
+                    )}
+                  </Button>
                 </TableCell>
               </TableRow>
             ))
