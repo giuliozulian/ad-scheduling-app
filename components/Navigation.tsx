@@ -30,6 +30,16 @@ export default function Navigation() {
       >
         Projects
       </Link>
+      <Link
+        href="/scheduling"
+        className={`transition-colors ${
+          isActive('/scheduling')
+            ? 'text-white'
+            : 'text-gray-400 hover:text-white'
+        }`}
+      >
+        Scheduling
+      </Link>
     </nav>
   );
 }

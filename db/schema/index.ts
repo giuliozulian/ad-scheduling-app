@@ -1,4 +1,13 @@
-import { pgTable, serial, timestamp, varchar } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  serial,
+  timestamp,
+  varchar,
+  integer,
+  date,
+  real,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 
 export const people = pgTable('people', {
   id: serial('id').primaryKey(),
@@ -25,3 +34,30 @@ export const projects = pgTable('projects', {
 });
 
 export type Project = typeof projects.$inferSelect;
+
+export const projectAllocations = pgTable(
+  'project_allocations',
+  {
+    id: serial('id').primaryKey(),
+    projectId: integer('project_id')
+      .references(() => projects.id, { onDelete: 'cascade' })
+      .notNull(),
+    personId: integer('person_id')
+      .references(() => people.id, { onDelete: 'cascade' })
+      .notNull(),
+    date: date('date').notNull(),
+    hours: real('hours').notNull().default(0),
+    created_at: timestamp('created_at').defaultNow(),
+    updated_at: timestamp('updated_at').defaultNow(),
+  },
+  (table) => ({
+    unq: uniqueIndex('unique_project_day_person').on(
+      table.projectId,
+      table.personId,
+      table.date
+    ),
+  })
+);
+
+export type ProjectAllocation = typeof projectAllocations.$inferSelect;
+export type NewProjectAllocation = typeof projectAllocations.$inferInsert;

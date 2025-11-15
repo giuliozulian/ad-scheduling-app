@@ -9,11 +9,13 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix && pnpm prettier --write .",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,md,json}\"",
-    "db:seed:people": "npx tsx db/seeds/people.ts",
-    "db:seed:project": "npx tsx db/seeds/project.ts"
+    "db:seedpeople": "npx tsx db/seeds/people.ts",
+    "db:seed:project": "npx tsx db/seeds/project.ts",
+    "db:seed:project_allocation": "npx tsx db/seeds/allocations.ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
+    "@tanstack/react-virtual": "^3.13.12",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
@@ -24,7 +26,8 @@
     "pg": "^8.16.3",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.1.6",
