@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
+import Navigation from '../components/Navigation';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -46,7 +47,7 @@ export default function RootLayout({
                 Your browser does not support videos with transparency
               </video>
               <svg
-                className="inline-block w-[130px] transition-all duration-[350ms]"
+                className="inline-block w-[130px] transition-all duration-350"
                 viewBox="0 0 118 21"
                 fill="white"
                 xmlns="http://www.w3.org/2000/svg"
@@ -95,14 +96,7 @@ export default function RootLayout({
             </Link>
           </div>
 
-          <nav className="font-lg ml-auto flex gap-6 font-bold">
-            <Link className="" href="/people">
-              People
-            </Link>
-            <Link className="" href="/projects">
-              Projects
-            </Link>
-          </nav>
+          <Navigation />
         </header>
         {children}
       </body>
