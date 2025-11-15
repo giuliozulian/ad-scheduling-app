@@ -11,6 +11,12 @@ export default function Home() {
           >
             Vai alla tabella People
           </Link>
+          <Link
+            className="flex h-12 w-full items-center justify-center rounded-full bg-green-600 px-5 text-white transition-colors hover:bg-green-700 md:w-[158px]"
+            href="/projects"
+          >
+            Vai alla tabella Projects
+          </Link>
         </div>
       </main>
     </div>

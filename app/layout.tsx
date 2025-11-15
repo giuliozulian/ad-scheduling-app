@@ -94,7 +94,15 @@ export default function RootLayout({
               </svg>
             </Link>
           </div>
-          <h2 className="ml-auto text-lg font-bold">Homepage</h2>
+
+          <nav className="font-lg ml-auto flex gap-6 font-bold">
+            <Link className="" href="/people">
+              People
+            </Link>
+            <Link className="" href="/projects">
+              Projects
+            </Link>
+          </nav>
         </header>
         {children}
       </body>
