@@ -6,12 +6,14 @@ interface MonthNavigationProps {
   month: number;
   year: number;
   onMonthChange: (month: number, year: number) => void;
+  onAddAllocation?: () => void;
 }
 
 export function MonthNavigation({
   month,
   year,
   onMonthChange,
+  onAddAllocation,
 }: MonthNavigationProps) {
   const handlePrevMonth = () => {
     if (month === 1) {
@@ -47,12 +49,22 @@ export function MonthNavigation({
         <h2 className="text-xl font-semibold text-white">
           {getMonthName(month)} {year}
         </h2>
-        <button
-          onClick={handleToday}
-          className="rounded bg-blue-100 px-3 py-1 text-sm text-blue-700 hover:bg-blue-200"
-        >
-          Oggi
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleToday}
+            className="rounded bg-blue-100 px-3 py-1 text-sm text-blue-700 hover:bg-blue-200"
+          >
+            Oggi
+          </button>
+          {onAddAllocation && (
+            <button
+              onClick={onAddAllocation}
+              className="rounded bg-green-500 px-3 py-1 text-sm font-medium text-white hover:bg-green-600"
+            >
+              + Aggiungi Allocazione
+            </button>
+          )}
+        </div>
       </div>
 
       <button

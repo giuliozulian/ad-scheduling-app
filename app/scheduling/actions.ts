@@ -10,6 +10,7 @@ import {
   getUniquePMs,
   getAllPeople,
   getUniqueTeams,
+  getAllProjects,
 } from '@/db/queries';
 import { eq, and, sum } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
@@ -36,6 +37,13 @@ export interface SchedulingData {
   clients: string[];
   pms: string[];
   teams: string[];
+  projects: Array<{
+    id: number;
+    type: string;
+    client: string;
+    order: string;
+    pm: string;
+  }>;
   people: Array<{
     id: number;
     firstname: string;
@@ -52,16 +60,25 @@ export async function getScheduling(
   year: number
 ): Promise<SchedulingData> {
   // Esegui query in parallelo
-  const [rows, allocationsData, dailyTotalsData, clients, pms, teams, people] =
-    await Promise.all([
-      getScheduleRows(month, year),
-      getAllocations(month, year),
-      getDailyTotals(month, year),
-      getUniqueClients(),
-      getUniquePMs(),
-      getUniqueTeams(),
-      getAllPeople(),
-    ]);
+  const [
+    rows,
+    allocationsData,
+    dailyTotalsData,
+    clients,
+    pms,
+    teams,
+    allProjects,
+    people,
+  ] = await Promise.all([
+    getScheduleRows(month, year),
+    getAllocations(month, year),
+    getDailyTotals(month, year),
+    getUniqueClients(),
+    getUniquePMs(),
+    getUniqueTeams(),
+    getAllProjects(),
+    getAllPeople(),
+  ]);
 
   // Converti allocations in map
   const allocations: AllocationMap = {};
@@ -93,6 +110,21 @@ export async function getScheduling(
     clients,
     pms,
     teams,
+    projects: allProjects.map(
+      (p: {
+        id: number;
+        type: string;
+        client: string;
+        order: string;
+        pm: string;
+      }) => ({
+        id: p.id,
+        type: p.type,
+        client: p.client,
+        order: p.order,
+        pm: p.pm,
+      })
+    ),
     people: people.map(
       (p: {
         id: number;
@@ -213,6 +245,52 @@ export async function setHours(input: SetHoursInput): Promise<SetHoursResult> {
     return {
       success: false,
       error: 'Errore durante il salvataggio',
+    };
+  }
+}
+
+export interface DeleteAllocationInput {
+  projectId: number;
+  personId: number;
+  date: string;
+}
+
+export interface DeleteAllocationResult {
+  success: boolean;
+  error?: string;
+}
+
+/**
+ * Elimina un'allocazione dal database
+ */
+export async function deleteAllocation({
+  projectId,
+  personId,
+  date,
+}: DeleteAllocationInput): Promise<DeleteAllocationResult> {
+  try {
+    // Elimina il record
+    await db
+      .delete(projectAllocations)
+      .where(
+        and(
+          eq(projectAllocations.projectId, projectId),
+          eq(projectAllocations.personId, personId),
+          eq(projectAllocations.date, date)
+        )
+      );
+
+    // Revalidate la pagina scheduling
+    revalidatePath('/scheduling');
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error('Error deleting allocation:', error);
+    return {
+      success: false,
+      error: 'Errore durante la cancellazione',
     };
   }
 }

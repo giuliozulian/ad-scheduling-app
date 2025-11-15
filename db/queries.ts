@@ -184,3 +184,13 @@ export async function getUniqueTeams(): Promise<string[]> {
     .map((r: { team: string | null }) => r.team)
     .filter((team): team is string => team !== null);
 }
+
+/**
+ * Recupera tutti i progetti
+ */
+export async function getAllProjects() {
+  return await db
+    .select()
+    .from(projects)
+    .orderBy(projects.client, projects.order);
+}

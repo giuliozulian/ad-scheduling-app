@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useSchedulingStore } from '@/lib/scheduling-store';
-import { setHours } from '@/app/scheduling/actions';
+import { setHours, deleteAllocation } from '@/app/scheduling/actions';
 import { Dialog } from '@/components/ui/dialog';
 
 interface DayCellProps {
@@ -82,6 +82,28 @@ export function DayCell({
         setIsOpen(false);
       } else {
         alert(result.error || 'Errore durante il salvataggio');
+      }
+    });
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Sei sicuro di voler eliminare questa allocazione?')) {
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await deleteAllocation({
+        projectId,
+        personId,
+        date,
+      });
+
+      if (result.success) {
+        // Aggiorna lo store locale rimuovendo l'allocazione
+        setHoursLocal(projectId, personId, date, 0);
+        setIsOpen(false);
+      } else {
+        alert(result.error || "Errore durante l'eliminazione");
       }
     });
   };
@@ -222,21 +244,34 @@ export function DayCell({
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-2">
-            <button
-              onClick={() => setIsOpen(false)}
-              className="rounded-lg bg-gray-200 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-300 disabled:opacity-50"
-              disabled={isPending}
-            >
-              Annulla
-            </button>
-            <button
-              onClick={handleSave}
-              className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-              disabled={isPending}
-            >
-              {isPending ? 'Salvataggio...' : 'Salva'}
-            </button>
+          <div className="flex justify-between gap-3 pt-2">
+            {/* Delete button - shown only if there are hours allocated */}
+            {hours > 0 && (
+              <button
+                onClick={handleDelete}
+                className="rounded-lg bg-red-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                disabled={isPending}
+              >
+                {isPending ? 'Eliminazione...' : 'Elimina'}
+              </button>
+            )}
+
+            <div className="ml-auto flex gap-3">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="rounded-lg bg-gray-200 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-300 disabled:opacity-50"
+                disabled={isPending}
+              >
+                Annulla
+              </button>
+              <button
+                onClick={handleSave}
+                className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                disabled={isPending}
+              >
+                {isPending ? 'Salvataggio...' : 'Salva'}
+              </button>
+            </div>
           </div>
         </div>
       </Dialog>

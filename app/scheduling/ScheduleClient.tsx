@@ -5,6 +5,7 @@ import { useSchedulingStore } from '@/lib/scheduling-store';
 import { Filters } from '@/components/schedule/Filters';
 import { ScheduleTable } from '@/components/schedule/ScheduleTable';
 import { MonthNavigation } from '@/components/schedule/MonthNavigation';
+import { AddAllocationDialog } from '@/components/schedule/AddAllocationDialog';
 import { getScheduling } from './actions';
 import type { SchedulingData } from './actions';
 
@@ -23,6 +24,7 @@ export function ScheduleClient({
   const [month, setMonth] = useState(initialMonth);
   const [year, setYear] = useState(initialYear);
   const [isPending, startTransition] = useTransition();
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   const setAllocations = useSchedulingStore((state) => state.setAllocations);
   const setDailyTotals = useSchedulingStore((state) => state.setDailyTotals);
@@ -51,6 +53,7 @@ export function ScheduleClient({
         month={month}
         year={year}
         onMonthChange={handleMonthChange}
+        onAddAllocation={() => setIsAddDialogOpen(true)}
       />
 
       {/* Filtri */}
@@ -72,6 +75,14 @@ export function ScheduleClient({
       ) : (
         <ScheduleTable rows={data.rows} month={month} year={year} />
       )}
+
+      {/* Dialog Aggiungi Allocazione */}
+      <AddAllocationDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        projects={data.projects}
+        people={data.people}
+      />
     </div>
   );
 }
