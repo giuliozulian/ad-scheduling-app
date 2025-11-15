@@ -13,3 +13,15 @@ export const people = pgTable('people', {
 });
 
 export type People = typeof people.$inferSelect;
+
+export const projects = pgTable('projects', {
+  id: serial('id').primaryKey(),
+  type: varchar('type', { length: 100 }).notNull(),
+  client: varchar('client', { length: 255 }).notNull(),
+  order: varchar('order', { length: 100 }).notNull(),
+  pm: varchar('pm', { length: 100 }).notNull(),
+  created_at: timestamp('created_at').defaultNow(),
+  updated_at: timestamp('updated_at').defaultNow(),
+});
+
+export type Project = typeof projects.$inferSelect;
