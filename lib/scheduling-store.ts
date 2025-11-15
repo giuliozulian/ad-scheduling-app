@@ -7,7 +7,7 @@ export interface ScheduleFilters {
   client: string;
   pm: string;
   personId: number | null;
-  search: string;
+  team: string;
 }
 
 export interface AllocationMap {
@@ -48,7 +48,7 @@ const defaultFilters: ScheduleFilters = {
   client: '',
   pm: '',
   personId: null,
-  search: '',
+  team: '',
 };
 
 export const useSchedulingStore = create<SchedulingState>((set, get) => ({

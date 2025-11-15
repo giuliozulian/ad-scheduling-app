@@ -54,7 +54,12 @@ export function ScheduleClient({
       />
 
       {/* Filtri */}
-      <Filters clients={data.clients} pms={data.pms} people={data.people} />
+      <Filters
+        clients={data.clients}
+        pms={data.pms}
+        teams={data.teams}
+        people={data.people}
+      />
 
       {/* Tabella */}
       {isPending ? (

@@ -35,7 +35,7 @@ export function MonthNavigation({
   };
 
   return (
-    <div className="flex items-center justify-between rounded-lg px-4">
+    <div className="mt-4 flex items-center justify-between rounded-lg px-24">
       <button
         onClick={handlePrevMonth}
         className="rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-200"

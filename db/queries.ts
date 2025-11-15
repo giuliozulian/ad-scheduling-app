@@ -169,3 +169,18 @@ export async function getAllPeople() {
     .from(people)
     .orderBy(people.lastname, people.firstname);
 }
+
+/**
+ * Recupera tutti i team unici
+ */
+export async function getUniqueTeams(): Promise<string[]> {
+  const result = await db
+    .selectDistinct({ team: people.team })
+    .from(people)
+    .where(sql`${people.team} IS NOT NULL`)
+    .orderBy(people.team);
+
+  return result
+    .map((r: { team: string | null }) => r.team)
+    .filter((team): team is string => team !== null);
+}

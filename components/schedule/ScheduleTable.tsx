@@ -16,6 +16,7 @@ interface ScheduleRow {
   personId: number;
   personFirstname: string;
   personLastname: string;
+  personTeam: string | null;
 }
 
 interface ScheduleTableProps {
@@ -161,23 +162,9 @@ export function ScheduleTable({ rows, month, year }: ScheduleTableProps) {
         return false;
       }
 
-      // Ricerca testo
-      if (filters.search) {
-        const search = filters.search.toLowerCase();
-        const searchableText = [
-          row.projectType,
-          row.projectClient,
-          row.projectOrder,
-          row.projectPm,
-          row.personFirstname,
-          row.personLastname,
-        ]
-          .join(' ')
-          .toLowerCase();
-
-        if (!searchableText.includes(search)) {
-          return false;
-        }
+      // Filtro team
+      if (filters.team && row.personTeam !== filters.team) {
+        return false;
       }
 
       return true;

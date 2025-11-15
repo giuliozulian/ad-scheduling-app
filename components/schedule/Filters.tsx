@@ -5,10 +5,11 @@ import { useSchedulingStore } from '@/lib/scheduling-store';
 interface FiltersProps {
   clients: string[];
   pms: string[];
+  teams: string[];
   people: Array<{ id: number; firstname: string; lastname: string }>;
 }
 
-export function Filters({ clients, pms, people }: FiltersProps) {
+export function Filters({ clients, pms, teams, people }: FiltersProps) {
   const filters = useSchedulingStore((state) => state.filters);
   const setFilter = useSchedulingStore((state) => state.setFilter);
   const resetFilters = useSchedulingStore((state) => state.resetFilters);
@@ -88,18 +89,23 @@ export function Filters({ clients, pms, people }: FiltersProps) {
           </select>
         </div>
 
-        {/* Ricerca Testo */}
+        {/* Filtro Team */}
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">
-            Cerca
+            Team
           </label>
-          <input
-            type="text"
-            value={filters.search}
-            onChange={(e) => setFilter('search', e.target.value)}
-            placeholder="Tipologia, cliente, commessa..."
+          <select
+            value={filters.team}
+            onChange={(e) => setFilter('team', e.target.value)}
             className="w-full rounded border border-gray-500 px-3 py-2 text-sm text-black focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-          />
+          >
+            <option value="">Tutti</option>
+            {teams.map((team) => (
+              <option key={team} value={team}>
+                {team}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </div>

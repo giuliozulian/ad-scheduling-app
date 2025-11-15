@@ -9,6 +9,7 @@ import {
   getUniqueClients,
   getUniquePMs,
   getAllPeople,
+  getUniqueTeams,
 } from '@/db/queries';
 import { eq, and, sum } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
@@ -34,6 +35,7 @@ export interface SchedulingData {
   dailyTotals: DailyTotalsMap;
   clients: string[];
   pms: string[];
+  teams: string[];
   people: Array<{
     id: number;
     firstname: string;
@@ -50,13 +52,14 @@ export async function getScheduling(
   year: number
 ): Promise<SchedulingData> {
   // Esegui query in parallelo
-  const [rows, allocationsData, dailyTotalsData, clients, pms, people] =
+  const [rows, allocationsData, dailyTotalsData, clients, pms, teams, people] =
     await Promise.all([
       getScheduleRows(month, year),
       getAllocations(month, year),
       getDailyTotals(month, year),
       getUniqueClients(),
       getUniquePMs(),
+      getUniqueTeams(),
       getAllPeople(),
     ]);
 
@@ -89,6 +92,7 @@ export async function getScheduling(
     dailyTotals,
     clients,
     pms,
+    teams,
     people: people.map(
       (p: {
         id: number;
