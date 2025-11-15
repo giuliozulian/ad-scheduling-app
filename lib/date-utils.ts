@@ -11,6 +11,7 @@ export function getDaysInMonth(month: number, year: number): number {
 
 /**
  * Restituisce un array di tutti i giorni del mese come stringhe ISO (YYYY-MM-DD)
+ * Esclude sabato e domenica
  */
 export function getDaysOfMonth(month: number, year: number): string[] {
   const daysCount = getDaysInMonth(month, year);
@@ -18,7 +19,10 @@ export function getDaysOfMonth(month: number, year: number): string[] {
   
   for (let day = 1; day <= daysCount; day++) {
     const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    days.push(dateStr);
+    // Escludi weekend (sabato = 6, domenica = 0)
+    if (!isWeekend(dateStr)) {
+      days.push(dateStr);
+    }
   }
   
   return days;
@@ -36,6 +40,7 @@ export function getWeekOfMonth(dateStr: string): number {
 /**
  * Restituisce un oggetto con le settimane del mese e i giorni corrispondenti
  * Formato: { week: number, days: string[] }[]
+ * Usa il numero di settimana ISO 8601 (standard europeo)
  */
 export interface WeekData {
   week: number;
@@ -48,7 +53,7 @@ export function getWeeksOfMonth(month: number, year: number): WeekData[] {
   const weeks: Map<number, string[]> = new Map();
   
   days.forEach(day => {
-    const weekNum = getWeekOfMonth(day);
+    const weekNum = getISOWeek(day);
     if (!weeks.has(weekNum)) {
       weeks.set(weekNum, []);
     }
@@ -96,6 +101,34 @@ export function getMonthName(month: number): string {
  */
 export function getDayOfWeek(dateStr: string): number {
   return new Date(dateStr).getDay();
+}
+
+/**
+ * Restituisce il nome breve del giorno della settimana (Lun, Mar, Mer, ...)
+ */
+export function getDayName(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('it-IT', { weekday: 'short' });
+}
+
+/**
+ * Calcola il numero della settimana ISO 8601 (standard europeo)
+ * Le settimane iniziano di lunedì e la prima settimana dell'anno contiene il 4 gennaio
+ */
+export function getISOWeek(dateStr: string): number {
+  const date = new Date(dateStr);
+  const thursday = new Date(date.getTime());
+  
+  // Imposta la data al giovedì della stessa settimana
+  thursday.setDate(date.getDate() + (4 - (date.getDay() || 7)));
+  
+  // Primo gennaio dell'anno del giovedì
+  const yearStart = new Date(thursday.getFullYear(), 0, 1);
+  
+  // Calcola il numero di settimana
+  const weekNumber = Math.ceil((((thursday.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  
+  return weekNumber;
 }
 
 /**

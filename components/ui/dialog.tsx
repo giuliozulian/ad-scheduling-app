@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 
 export function Dialog({
   open,
@@ -9,11 +10,20 @@ export function Dialog({
   onOpenChange: (open: boolean) => void;
   children: React.ReactNode;
 }) {
-  return open ? (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="relative max-w-full min-w-[320px] rounded-lg bg-white p-6 shadow-xl dark:bg-[#18181b]">
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!open || !mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-9999 flex items-center justify-center bg-black/50">
+      <div className="relative mx-4 w-full max-w-[500px] rounded-lg bg-white p-6 shadow-xl">
         <button
-          className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+          className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
           onClick={() => onOpenChange(false)}
           aria-label="Chiudi"
         >
@@ -31,6 +41,7 @@ export function Dialog({
         </button>
         {children}
       </div>
-    </div>
-  ) : null;
+    </div>,
+    document.body
+  );
 }

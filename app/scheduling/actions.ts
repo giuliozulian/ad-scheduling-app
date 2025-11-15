@@ -10,7 +10,7 @@ import {
   getUniquePMs,
   getAllPeople,
 } from '@/db/queries';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sum } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { getAllocationKey } from '@/lib/date-utils';
 import type { AllocationMap, DailyTotalsMap } from '@/lib/scheduling-store';
@@ -181,7 +181,7 @@ export async function setHours(input: SetHoursInput): Promise<SetHoursResult> {
       .select({
         personId: projectAllocations.personId,
         date: projectAllocations.date,
-        totalHours: db.$count(projectAllocations.hours),
+        totalHours: sum(projectAllocations.hours),
       })
       .from(projectAllocations)
       .where(
@@ -193,7 +193,9 @@ export async function setHours(input: SetHoursInput): Promise<SetHoursResult> {
       .groupBy(projectAllocations.personId, projectAllocations.date);
 
     const dailyTotal =
-      dailyTotalsData.length > 0 ? dailyTotalsData[0].totalHours : 0;
+      dailyTotalsData.length > 0
+        ? Number(dailyTotalsData[0].totalHours) || 0
+        : 0;
 
     // Revalidate la pagina scheduling
     revalidatePath('/scheduling');

@@ -9,6 +9,17 @@ interface DayCellProps {
   projectId: number;
   personId: number;
   date: string;
+  isWeekBoundary?: boolean;
+  projectInfo?: {
+    type: string;
+    client: string;
+    order: string;
+    pm: string;
+  };
+  personInfo?: {
+    firstname: string;
+    lastname: string;
+  };
 }
 
 function getCellColor(hours: number, dailyTotal: number): string {
@@ -31,7 +42,14 @@ function getCellColor(hours: number, dailyTotal: number): string {
   return 'bg-green-100 text-gray-600 hover:bg-green-200';
 }
 
-export function DayCell({ projectId, personId, date }: DayCellProps) {
+export function DayCell({
+  projectId,
+  personId,
+  date,
+  isWeekBoundary = false,
+  projectInfo,
+  personInfo,
+}: DayCellProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [localHours, setLocalHours] = useState<number>(0);
   const [isPending, startTransition] = useTransition();
@@ -68,14 +86,14 @@ export function DayCell({ projectId, personId, date }: DayCellProps) {
     });
   };
 
-  const quickSet = (value: number) => {
-    setLocalHours(value);
-  };
-
   return (
     <>
       <div
-        className={`shrink-0 cursor-pointer border-r border-gray-200 px-2 py-1 text-center transition-all hover:opacity-80 ${cellColor}`}
+        className={`shrink-0 cursor-pointer px-2 py-1 text-center transition-all hover:opacity-80 ${cellColor} ${
+          isWeekBoundary
+            ? 'border-r-4 border-blue-300'
+            : 'border-r border-gray-200'
+        }`}
         style={{ width: '64px', minHeight: '40px' }}
         onClick={handleOpen}
       >
@@ -84,31 +102,84 @@ export function DayCell({ projectId, personId, date }: DayCellProps) {
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Imposta Ore</h3>
+          <h3 className="text-xl font-semibold text-gray-900">
+            Allocazione Ore
+          </h3>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Data: {new Date(date).toLocaleDateString('it-IT')}
-            </label>
+          <div className="space-y-4">
+            {/* Informazioni Progetto e Persona */}
+            <div className="space-y-3 rounded-lg border-2 border-blue-200 bg-blue-50 p-4">
+              <div>
+                <div className="text-xs font-semibold tracking-wide text-blue-600 uppercase">
+                  Progetto
+                </div>
+                <div className="mt-1 space-y-1">
+                  {projectInfo && (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-600">Cliente:</span>
+                        <span className="font-semibold text-gray-900">
+                          {projectInfo.client}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-600">Commessa:</span>
+                        <span className="font-medium text-gray-800">
+                          {projectInfo.order}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-600">Tipo:</span>
+                        <span className="text-sm text-gray-700">
+                          {projectInfo.type}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-600">PM:</span>
+                        <span className="text-sm text-gray-700">
+                          {projectInfo.pm}
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
 
-            {/* Number Input */}
-            <div>
-              <label className="mb-1 block text-sm text-gray-600">Ore:</label>
-              <input
-                type="number"
-                min="0"
-                max="8"
-                step="0.5"
-                value={localHours}
-                onChange={(e) => setLocalHours(parseFloat(e.target.value) || 0)}
-                className="w-full rounded border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
-              />
+              <div className="border-t border-blue-200 pt-2">
+                <div className="text-xs font-semibold tracking-wide text-blue-600 uppercase">
+                  Risorsa
+                </div>
+                <div className="mt-1">
+                  {personInfo && (
+                    <span className="font-semibold text-gray-900">
+                      {personInfo.lastname} {personInfo.firstname}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="border-t border-blue-200 pt-2">
+                <div className="text-xs font-semibold tracking-wide text-blue-600 uppercase">
+                  Data
+                </div>
+                <div className="mt-1 font-medium text-gray-900">
+                  {new Date(date).toLocaleDateString('it-IT', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </div>
+              </div>
             </div>
 
             {/* Slider */}
-            <div>
-              <label className="mb-1 block text-sm text-gray-600">
-                Slider: {localHours}h
+            <div className="rounded-lg border-2 border-gray-300 bg-white p-4">
+              <label className="mb-3 block text-center text-lg font-semibold text-gray-900">
+                Ore da allocare:{' '}
+                <span className="text-2xl font-bold text-blue-600">
+                  {localHours}h
+                </span>
               </label>
               <input
                 type="range"
@@ -117,60 +188,51 @@ export function DayCell({ projectId, personId, date }: DayCellProps) {
                 step="0.5"
                 value={localHours}
                 onChange={(e) => setLocalHours(parseFloat(e.target.value))}
-                className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-blue-600"
+                className="h-4 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-blue-600"
               />
-            </div>
-
-            {/* Quick Buttons */}
-            <div>
-              <label className="mb-2 block text-sm text-gray-600">Quick:</label>
-              <div className="flex gap-2">
-                {[0, 0.5, 2, 4, 8].map((value) => (
-                  <button
-                    key={value}
-                    onClick={() => quickSet(value)}
-                    className={`rounded px-3 py-1 text-sm font-medium transition-colors ${
-                      localHours === value
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
-                  >
-                    {value}h
-                  </button>
-                ))}
+              <div className="mt-2 flex justify-between text-xs text-gray-500">
+                <span>0h</span>
+                <span>2h</span>
+                <span>4h</span>
+                <span>6h</span>
+                <span>8h</span>
               </div>
             </div>
           </div>
 
           {/* Totale giornaliero */}
-          <div className="rounded bg-gray-100 p-2 text-sm">
-            <span className="font-medium">Totale giorno:</span>{' '}
+          <div className="rounded-lg bg-gray-100 p-3 text-sm">
+            <span className="font-medium text-gray-700">
+              Totale ore nel giorno:
+            </span>{' '}
             <span
               className={
-                dailyTotal > 8 ? 'font-bold text-red-600' : 'text-gray-700'
+                dailyTotal > 8
+                  ? 'text-lg font-bold text-red-600'
+                  : 'text-lg font-semibold text-gray-900'
               }
             >
               {dailyTotal}h
             </span>
             {dailyTotal > 8 && (
-              <span className="ml-2 text-xs text-red-600">
-                (Sovrallocazione!)
+              <span className="ml-2 text-xs font-semibold text-red-600">
+                ⚠️ Sovrallocazione!
               </span>
             )}
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-3 pt-2">
             <button
               onClick={() => setIsOpen(false)}
-              className="rounded bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300"
+              className="rounded-lg bg-gray-200 px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-300 disabled:opacity-50"
               disabled={isPending}
             >
               Annulla
             </button>
             <button
               onClick={handleSave}
-              className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
               disabled={isPending}
             >
               {isPending ? 'Salvataggio...' : 'Salva'}
