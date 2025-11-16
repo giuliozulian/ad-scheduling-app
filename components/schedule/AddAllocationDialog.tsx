@@ -1,9 +1,12 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import MultipleSelector from '@/components/ui/multiple-selector';
 import { Dialog } from '@/components/ui/dialog';
-import { setHours as saveAllocation } from '@/app/scheduling/actions';
+import {
+  setHours as saveAllocation,
+  getPersonDailyTotal,
+} from '@/app/scheduling/actions';
 import { useSchedulingStore } from '@/lib/scheduling-store';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -43,6 +46,7 @@ export function AddAllocationDialog({
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [hours, setHours] = useState(0);
   const [isPending, startTransition] = useTransition();
+  const [dailyTotalFromDb, setDailyTotalFromDb] = useState<number>(0);
 
   const setHoursLocal = useSchedulingStore((state) => state.setHoursLocal);
   const getDailyTotal = useSchedulingStore((state) => state.getDailyTotal);
@@ -95,6 +99,35 @@ export function AddAllocationDialog({
     });
   };
 
+  // Fetch daily total from DB when personIds and date change (only if one person selected)
+  useEffect(() => {
+    if (personIds.length === 1 && date) {
+      // DEBUG: log local date and UTC date
+      console.log(
+        'Selected JS date:',
+        date,
+        'ISO:',
+        date.toISOString(),
+        'Local:',
+        date.toLocaleDateString()
+      );
+      // Always use local date (yyyy-mm-dd) to avoid timezone shift
+      const localDate = new Date(
+        date.getTime() - date.getTimezoneOffset() * 60000
+      )
+        .toISOString()
+        .slice(0, 10);
+      getPersonDailyTotal(personIds[0], localDate).then((result) => {
+        setDailyTotalFromDb(Number(result?.hours ?? 0));
+      });
+      return;
+    }
+    if (dailyTotalFromDb !== 0) {
+      setDailyTotalFromDb(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [personIds, date]);
+
   // Per la preview del totale giornaliero mostriamo il primo selezionato (se presente)
   const dailyTotal =
     personIds.length === 1 && date
@@ -143,7 +176,7 @@ export function AddAllocationDialog({
                 setProjectIds(opts.map((o) => Number(o.value)))
               }
               inverted
-              placeholder="Seleziona uno o più progetti"
+              placeholder="Seleziona un progetto"
             />
           </div>
 
@@ -191,7 +224,7 @@ export function AddAllocationDialog({
               onChange={(opts) =>
                 setPersonIds(opts.map((o) => Number(o.value)))
               }
-              placeholder="Seleziona una o più risorse"
+              placeholder="Seleziona una risorse"
             />
           </div>
 
@@ -252,18 +285,36 @@ export function AddAllocationDialog({
           {personIds.length === 1 && date && (
             <div className="rounded-lg bg-gray-100 p-3 text-sm">
               <span className="font-medium text-gray-700">
-                Totale ore nel giorno:
+                Totale ore già allocate (DB):
               </span>{' '}
               <span
                 className={
-                  dailyTotal + hours > 8
+                  dailyTotalFromDb > 8
                     ? 'text-lg font-bold text-red-600'
                     : 'text-lg font-semibold text-gray-900'
                 }
               >
-                {dailyTotal + hours}h
+                {dailyTotalFromDb}h
               </span>
-              {dailyTotal + hours > 8 && (
+              {dailyTotalFromDb > 8 && (
+                <span className="ml-2 text-xs font-semibold text-red-600">
+                  ⚠️ Sovrallocazione!
+                </span>
+              )}
+              <br />
+              <span className="font-medium text-gray-700">
+                Totale ore dopo questa allocazione:
+              </span>{' '}
+              <span
+                className={
+                  dailyTotalFromDb + hours > 8
+                    ? 'text-lg font-bold text-red-600'
+                    : 'text-lg font-semibold text-gray-900'
+                }
+              >
+                {dailyTotalFromDb + hours}h
+              </span>
+              {dailyTotalFromDb + hours > 8 && (
                 <span className="ml-2 text-xs font-semibold text-red-600">
                   ⚠️ Sovrallocazione!
                 </span>

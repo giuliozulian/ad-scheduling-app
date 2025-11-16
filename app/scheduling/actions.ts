@@ -316,3 +316,26 @@ export async function getDailyTotalForPerson(
 
   return result.length > 0 ? result[0].total : 0;
 }
+
+export async function getPersonDailyTotal(personId: number, date: string) {
+  // DEBUG: log params
+  console.log('getPersonDailyTotal params:', { personId, date });
+
+  // date deve essere 'YYYY-MM-DD'
+  const result = await db
+    .select({
+      hours: sum(projectAllocations.hours),
+    })
+    .from(projectAllocations)
+    .where(
+      and(
+        eq(projectAllocations.personId, personId),
+        eq(projectAllocations.date, date)
+      )
+    );
+
+  // DEBUG: log result
+  console.log('getPersonDailyTotal result:', result);
+
+  return { hours: result[0]?.hours ?? 0 };
+}
