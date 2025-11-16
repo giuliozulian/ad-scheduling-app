@@ -1,10 +1,19 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import MultipleSelector, { Option } from '@/components/ui/multiple-selector';
+import MultipleSelector from '@/components/ui/multiple-selector';
 import { Dialog } from '@/components/ui/dialog';
 import { setHours as saveAllocation } from '@/app/scheduling/actions';
 import { useSchedulingStore } from '@/lib/scheduling-store';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { format } from 'date-fns';
+import { it } from 'date-fns/locale';
 
 interface AddAllocationDialogProps {
   open: boolean;
@@ -30,7 +39,7 @@ export function AddAllocationDialog({
 }: AddAllocationDialogProps) {
   const [projectIds, setProjectIds] = useState<number[]>([]);
   const [personIds, setPersonIds] = useState<number[]>([]);
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const [hours, setHours] = useState(0);
   const [isPending, startTransition] = useTransition();
 
@@ -55,11 +64,16 @@ export function AddAllocationDialog({
           const result = await saveAllocation({
             projectId,
             personId,
-            date,
+            date: date.toISOString().slice(0, 10), // yyyy-mm-dd
             hours,
           });
           if (result.success) {
-            setHoursLocal(projectId, personId, date, hours);
+            setHoursLocal(
+              projectId,
+              personId,
+              date.toISOString().slice(0, 10),
+              hours
+            );
           } else {
             allSuccess = false;
             alert(
@@ -73,7 +87,7 @@ export function AddAllocationDialog({
         // Reset form
         setProjectIds([]);
         setPersonIds([]);
-        setDate('');
+        setDate(undefined);
         setHours(0);
         onOpenChange(false);
       }
@@ -82,8 +96,23 @@ export function AddAllocationDialog({
 
   // Per la preview del totale giornaliero mostriamo il primo selezionato (se presente)
   const dailyTotal =
-    personIds.length === 1 && date ? getDailyTotal(personIds[0], date) : 0;
+    personIds.length === 1 && date
+      ? getDailyTotal(personIds[0], date.toISOString().slice(0, 10))
+      : 0;
   const selectedProjects = projects.filter((p) => projectIds.includes(p.id));
+
+  // Disabilita sabato e domenica
+  const disableWeekends = (date: Date) => {
+    const day = date.getDay();
+    return day === 0 || day === 6;
+  };
+
+  const isSaveDisabled =
+    projectIds.length === 0 ||
+    personIds.length === 0 ||
+    !date ||
+    hours <= 0 ||
+    isPending;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -170,12 +199,28 @@ export function AddAllocationDialog({
             <label className="mb-2 block text-sm font-medium text-gray-700">
               Data *
             </label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none"
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  className={`w-full justify-start text-left font-normal ${!date ? 'text-muted-foreground' : ''}`}
+                >
+                  {date ? (
+                    format(date, 'dd/MM/yyyy', { locale: it })
+                  ) : (
+                    <span>Seleziona una data</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  initialFocus
+                  disabled={disableWeekends}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Slider ore */}
@@ -237,8 +282,8 @@ export function AddAllocationDialog({
           </button>
           <button
             onClick={handleSave}
-            className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-            disabled={isPending}
+            className="bg-primary rounded-lg px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            disabled={isSaveDisabled}
           >
             {isPending ? 'Salvataggio...' : 'Salva Allocazione'}
           </button>

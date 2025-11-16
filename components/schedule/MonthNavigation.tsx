@@ -59,7 +59,7 @@ export function MonthNavigation({
           {onAddAllocation && (
             <button
               onClick={onAddAllocation}
-              className="rounded bg-green-500 px-3 py-1 text-sm font-medium text-white hover:bg-green-600"
+              className="bg-primary hover:text-primary rounded-3xl px-3 py-2 text-sm font-medium text-white hover:bg-white"
             >
               + Aggiungi Allocazione
             </button>
