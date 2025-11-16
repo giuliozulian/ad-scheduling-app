@@ -464,9 +464,7 @@ const MultipleSelector = React.forwardRef<
             inverted
               ? 'border border-black bg-white text-black placeholder-black'
               : 'border-input text-foreground border',
-            {
-              'cursor-text': !disabled && selected.length !== 0,
-            },
+            !disabled && selected.length !== 0 ? 'cursor-text' : '',
             className
           )}
           onClick={() => {
