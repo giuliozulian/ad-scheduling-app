@@ -538,10 +538,8 @@ const MultipleSelector = React.forwardRef<
                 inverted
                   ? 'text-black placeholder-black'
                   : 'placeholder:text-muted-foreground',
-                {
-                  'w-full': hidePlaceholderWhenSelected,
-                  'ml-1': selected.length !== 0,
-                },
+                hidePlaceholderWhenSelected ? 'w-full' : '',
+                selected.length !== 0 ? 'ml-1' : '',
                 inputProps?.className
               )}
             />
