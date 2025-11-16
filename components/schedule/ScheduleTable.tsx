@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useSchedulingStore } from '@/lib/scheduling-store';
 import { getDaysOfMonth, getWeeksOfMonth } from '@/lib/date-utils';
@@ -127,6 +127,16 @@ function VirtualizedRows({
 export function ScheduleTable({ rows, month, year }: ScheduleTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
   const filters = useSchedulingStore((state) => state.filters);
+  const setFilter = useSchedulingStore((state) => state.setFilter);
+
+  // Reset filtri all'avvio per mostrare tutto
+  useEffect(() => {
+    setFilter('client', []);
+    setFilter('pm', []);
+    setFilter('personId', []);
+    setFilter('team', []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const days = getDaysOfMonth(month, year);
   const weeks = getWeeksOfMonth(month, year);
