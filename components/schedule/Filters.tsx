@@ -1,6 +1,7 @@
 'use client';
 
 import { useSchedulingStore } from '@/lib/scheduling-store';
+import MultipleSelector, { Option } from '@/components/ui/multiple-selector';
 
 interface FiltersProps {
   clients: string[];
@@ -14,13 +15,42 @@ export function Filters({ clients, pms, teams, people }: FiltersProps) {
   const setFilter = useSchedulingStore((state) => state.setFilter);
   const resetFilters = useSchedulingStore((state) => state.resetFilters);
 
+  // Map data to Option[]
+  const clientOptions: Option[] = clients.map((client) => ({
+    value: client,
+    label: client,
+  }));
+  const pmOptions: Option[] = pms.map((pm) => ({ value: pm, label: pm }));
+  const teamOptions: Option[] = teams.map((team) => ({
+    value: team,
+    label: team,
+  }));
+  const peopleOptions: Option[] = people.map((person) => ({
+    value: String(person.id),
+    label: `${person.lastname} ${person.firstname}`,
+  }));
+
+  // Convert filter values to Option[] for controlled MultipleSelector (multi-select)
+  const selectedClients = clientOptions.filter((o) =>
+    filters.client?.includes(o.value)
+  );
+  const selectedPMs = pmOptions.filter((o) => filters.pm?.includes(o.value));
+  const selectedTeams = teamOptions.filter((o) =>
+    filters.team?.includes(o.value)
+  );
+  const selectedPeople = peopleOptions.filter(
+    (o) =>
+      Array.isArray(filters.personId) &&
+      filters.personId.includes(Number(o.value))
+  );
+
   return (
-    <div className="mb-4 rounded-lg bg-[#dedede] px-4 pt-2 pb-4">
+    <div className="relative z-50 mb-4 rounded-lg px-4 pt-2 pb-4">
       <div className="mb-1 flex items-center justify-between">
-        <h3 className="text-sm font-bold text-gray-800">Filtri</h3>
+        <h3 className="text-sm font-bold text-white">Filtri</h3>
         <button
           onClick={resetFilters}
-          className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+          className="rounded-lg bg-red-200 px-3 py-1 text-sm text-red-950"
         >
           Reset
         </button>
@@ -29,83 +59,74 @@ export function Filters({ clients, pms, teams, people }: FiltersProps) {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {/* Filtro Cliente */}
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-500">
             Cliente
           </label>
-          <select
-            value={filters.client}
-            onChange={(e) => setFilter('client', e.target.value)}
-            className="w-full rounded border border-gray-500 px-3 py-2 text-sm text-black focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-          >
-            <option value="">Tutti</option>
-            {clients.map((client) => (
-              <option key={client} value={client}>
-                {client}
-              </option>
-            ))}
-          </select>
+          <MultipleSelector
+            options={clientOptions}
+            value={selectedClients}
+            onChange={(opts) =>
+              setFilter(
+                'client',
+                opts.map((o) => o.value)
+              )
+            }
+            placeholder="Tutti"
+          />
         </div>
 
         {/* Filtro PM */}
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-500">
             PM
           </label>
-          <select
-            value={filters.pm}
-            onChange={(e) => setFilter('pm', e.target.value)}
-            className="w-full rounded border border-gray-500 px-3 py-2 text-sm text-black focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-          >
-            <option value="">Tutti</option>
-            {pms.map((pm) => (
-              <option key={pm} value={pm}>
-                {pm}
-              </option>
-            ))}
-          </select>
+          <MultipleSelector
+            options={pmOptions}
+            value={selectedPMs}
+            onChange={(opts) =>
+              setFilter(
+                'pm',
+                opts.map((o) => o.value)
+              )
+            }
+            placeholder="Tutti"
+          />
         </div>
 
         {/* Filtro Persona */}
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-500">
             Risorsa
           </label>
-          <select
-            value={filters.personId ?? ''}
-            onChange={(e) =>
+          <MultipleSelector
+            options={peopleOptions}
+            value={selectedPeople}
+            onChange={(opts) =>
               setFilter(
                 'personId',
-                e.target.value ? parseInt(e.target.value, 10) : null
+                opts.map((o) => Number(o.value))
               )
             }
-            className="w-full rounded border border-gray-500 px-3 py-2 text-sm text-black focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-          >
-            <option value="">Tutti</option>
-            {people.map((person) => (
-              <option key={person.id} value={person.id}>
-                {person.lastname} {person.firstname}
-              </option>
-            ))}
-          </select>
+            placeholder="Tutti"
+          />
         </div>
 
         {/* Filtro Team */}
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-500">
             Team
           </label>
-          <select
-            value={filters.team}
-            onChange={(e) => setFilter('team', e.target.value)}
-            className="w-full rounded border border-gray-500 px-3 py-2 text-sm text-black focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-          >
-            <option value="">Tutti</option>
-            {teams.map((team) => (
-              <option key={team} value={team}>
-                {team}
-              </option>
-            ))}
-          </select>
+          <MultipleSelector
+            options={teamOptions}
+            value={selectedTeams}
+            onChange={(opts) =>
+              setFilter(
+                'team',
+                opts.map((o) => o.value)
+              )
+            }
+            placeholder="Tutti"
+          />
         </div>
       </div>
     </div>

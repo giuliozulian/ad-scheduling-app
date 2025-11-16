@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import MultipleSelector, { Option } from '@/components/ui/multiple-selector';
 import { Dialog } from '@/components/ui/dialog';
 import { setHours as saveAllocation } from '@/app/scheduling/actions';
 import { useSchedulingStore } from '@/lib/scheduling-store';
@@ -27,8 +28,8 @@ export function AddAllocationDialog({
   projects,
   people,
 }: AddAllocationDialogProps) {
-  const [projectId, setProjectId] = useState<number | null>(null);
-  const [personId, setPersonId] = useState<number | null>(null);
+  const [projectIds, setProjectIds] = useState<number[]>([]);
+  const [personIds, setPersonIds] = useState<number[]>([]);
   const [date, setDate] = useState('');
   const [hours, setHours] = useState(0);
   const [isPending, startTransition] = useTransition();
@@ -37,35 +38,52 @@ export function AddAllocationDialog({
   const getDailyTotal = useSchedulingStore((state) => state.getDailyTotal);
 
   const handleSave = async () => {
-    if (!projectId || !personId || !date || hours <= 0) {
+    if (
+      projectIds.length === 0 ||
+      personIds.length === 0 ||
+      !date ||
+      hours <= 0
+    ) {
       alert('Compila tutti i campi obbligatori');
       return;
     }
 
     startTransition(async () => {
-      const result = await saveAllocation({
-        projectId,
-        personId,
-        date,
-        hours,
-      });
-
-      if (result.success) {
-        setHoursLocal(projectId, personId, date, hours);
+      let allSuccess = true;
+      for (const projectId of projectIds) {
+        for (const personId of personIds) {
+          const result = await saveAllocation({
+            projectId,
+            personId,
+            date,
+            hours,
+          });
+          if (result.success) {
+            setHoursLocal(projectId, personId, date, hours);
+          } else {
+            allSuccess = false;
+            alert(
+              result.error ||
+                `Errore durante il salvataggio per progetto ${projectId} e risorsa ${personId}`
+            );
+          }
+        }
+      }
+      if (allSuccess) {
         // Reset form
-        setProjectId(null);
-        setPersonId(null);
+        setProjectIds([]);
+        setPersonIds([]);
         setDate('');
         setHours(0);
         onOpenChange(false);
-      } else {
-        alert(result.error || 'Errore durante il salvataggio');
       }
     });
   };
 
-  const dailyTotal = personId && date ? getDailyTotal(personId, date) : 0;
-  const selectedProject = projects.find((p) => p.id === projectId);
+  // Per la preview del totale giornaliero mostriamo il primo selezionato (se presente)
+  const dailyTotal =
+    personIds.length === 1 && date ? getDailyTotal(personIds[0], date) : 0;
+  const selectedProjects = projects.filter((p) => projectIds.includes(p.id));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -75,64 +93,76 @@ export function AddAllocationDialog({
         </h3>
 
         <div className="space-y-4">
-          {/* Selezione Progetto */}
+          {/* Selezione Progetto (Multi) */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700">
-              Progetto *
+              Progetti *
             </label>
-            <select
-              value={projectId ?? ''}
-              onChange={(e) =>
-                setProjectId(e.target.value ? parseInt(e.target.value) : null)
+            <MultipleSelector
+              options={projects.map((project) => ({
+                value: String(project.id),
+                label: `${project.client} - ${project.order} (${project.type})`,
+              }))}
+              value={projects
+                .filter((p) => projectIds.includes(p.id))
+                .map((p) => ({
+                  value: String(p.id),
+                  label: `${p.client} - ${p.order} (${p.type})`,
+                }))}
+              onChange={(opts) =>
+                setProjectIds(opts.map((o) => Number(o.value)))
               }
-              className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none"
-            >
-              <option value="">Seleziona un progetto</option>
-              {projects.map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.client} - {project.order} ({project.type})
-                </option>
-              ))}
-            </select>
+              inverted
+              placeholder="Seleziona uno o più progetti"
+            />
           </div>
 
-          {/* Info progetto selezionato */}
-          {selectedProject && (
+          {/* Info progetti selezionati */}
+          {selectedProjects.length > 0 && (
             <div className="rounded-lg bg-blue-50 p-3 text-sm">
               <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <span className="font-medium text-gray-600">Cliente:</span>{' '}
-                  <span className="text-gray-900">
-                    {selectedProject.client}
-                  </span>
-                </div>
-                <div>
-                  <span className="font-medium text-gray-600">Commessa:</span>{' '}
-                  <span className="text-gray-900">{selectedProject.order}</span>
-                </div>
+                {selectedProjects.map((proj) => (
+                  <>
+                    <div key={proj.id + '-cliente'}>
+                      <span className="font-medium text-gray-600">
+                        Cliente:
+                      </span>{' '}
+                      <span className="text-gray-900">{proj.client}</span>
+                    </div>
+                    <div key={proj.id + '-commessa'}>
+                      <span className="font-medium text-gray-600">
+                        Commessa:
+                      </span>{' '}
+                      <span className="text-gray-900">{proj.order}</span>
+                    </div>
+                  </>
+                ))}
               </div>
             </div>
           )}
 
-          {/* Selezione Risorsa */}
+          {/* Selezione Risorsa (Multi) */}
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700">
-              Risorsa *
+              Risorse *
             </label>
-            <select
-              value={personId ?? ''}
-              onChange={(e) =>
-                setPersonId(e.target.value ? parseInt(e.target.value) : null)
+            <MultipleSelector
+              options={people.map((person) => ({
+                value: String(person.id),
+                label: `${person.lastname} ${person.firstname}`,
+              }))}
+              inverted
+              value={people
+                .filter((p) => personIds.includes(p.id))
+                .map((p) => ({
+                  value: String(p.id),
+                  label: `${p.lastname} ${p.firstname}`,
+                }))}
+              onChange={(opts) =>
+                setPersonIds(opts.map((o) => Number(o.value)))
               }
-              className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none"
-            >
-              <option value="">Seleziona una risorsa</option>
-              {people.map((person) => (
-                <option key={person.id} value={person.id}>
-                  {person.lastname} {person.firstname}
-                </option>
-              ))}
-            </select>
+              placeholder="Seleziona una o più risorse"
+            />
           </div>
 
           {/* Selezione Data */}
@@ -172,8 +202,8 @@ export function AddAllocationDialog({
             </div>
           </div>
 
-          {/* Totale giornaliero */}
-          {personId && date && (
+          {/* Totale giornaliero (preview solo se una risorsa selezionata) */}
+          {personIds.length === 1 && date && (
             <div className="rounded-lg bg-gray-100 p-3 text-sm">
               <span className="font-medium text-gray-700">
                 Totale ore nel giorno:

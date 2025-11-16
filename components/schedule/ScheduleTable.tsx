@@ -147,23 +147,32 @@ export function ScheduleTable({ rows, month, year }: ScheduleTableProps) {
   // Applica i filtri alle righe
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
-      // Filtro cliente
-      if (filters.client && row.projectClient !== filters.client) {
+      // Filtro cliente (multi)
+      if (
+        filters.client.length > 0 &&
+        !filters.client.includes(row.projectClient)
+      ) {
         return false;
       }
 
-      // Filtro PM
-      if (filters.pm && row.projectPm !== filters.pm) {
+      // Filtro PM (multi)
+      if (filters.pm.length > 0 && !filters.pm.includes(row.projectPm)) {
         return false;
       }
 
-      // Filtro persona
-      if (filters.personId !== null && row.personId !== filters.personId) {
+      // Filtro persona (multi)
+      if (
+        filters.personId.length > 0 &&
+        !filters.personId.includes(row.personId)
+      ) {
         return false;
       }
 
-      // Filtro team
-      if (filters.team && row.personTeam !== filters.team) {
+      // Filtro team (multi)
+      if (
+        filters.team.length > 0 &&
+        !filters.team.includes(row.personTeam || '')
+      ) {
         return false;
       }
 

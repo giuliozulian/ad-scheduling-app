@@ -4,10 +4,10 @@ import { create } from 'zustand';
 import { getAllocationKey } from './date-utils';
 
 export interface ScheduleFilters {
-  client: string;
-  pm: string;
-  personId: number | null;
-  team: string;
+  client: string[];
+  pm: string[];
+  personId: number[];
+  team: string[];
 }
 
 export interface AllocationMap {
@@ -31,7 +31,7 @@ interface SchedulingState {
   year: number;
   
   // Actions
-  setFilter: (key: keyof ScheduleFilters, value: string | number | null) => void;
+  setFilter: (key: keyof ScheduleFilters, value: string[] | number[]) => void;
   resetFilters: () => void;
   
   setHoursLocal: (projectId: number, personId: number, date: string, hours: number) => void;
@@ -45,10 +45,10 @@ interface SchedulingState {
 }
 
 const defaultFilters: ScheduleFilters = {
-  client: '',
-  pm: '',
-  personId: null,
-  team: '',
+  client: [],
+  pm: [],
+  personId: [],
+  team: [],
 };
 
 export const useSchedulingStore = create<SchedulingState>((set, get) => ({
