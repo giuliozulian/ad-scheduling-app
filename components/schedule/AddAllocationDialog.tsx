@@ -267,7 +267,7 @@ export function AddAllocationDialog({
               type="range"
               min="0"
               max="8"
-              step="0.5"
+              step="2"
               value={hours}
               onChange={(e) => setHours(parseFloat(e.target.value))}
               className="accent-primary h-4 w-full cursor-pointer appearance-none rounded-lg bg-gray-200"
