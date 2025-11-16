@@ -132,7 +132,7 @@ export function DayCell({
             {/* Informazioni Progetto e Persona */}
             <div className="space-y-3 rounded-lg border-2 border-blue-200 bg-blue-50 p-4">
               <div>
-                <div className="text-xs font-semibold tracking-wide text-blue-600 uppercase">
+                <div className="text-primary text-xs font-semibold tracking-wide uppercase">
                   Progetto
                 </div>
                 <div className="mt-1 space-y-1">
@@ -168,7 +168,7 @@ export function DayCell({
               </div>
 
               <div className="border-t border-blue-200 pt-2">
-                <div className="text-xs font-semibold tracking-wide text-blue-600 uppercase">
+                <div className="text-primary text-xs font-semibold tracking-wide uppercase">
                   Risorsa
                 </div>
                 <div className="mt-1">
@@ -181,7 +181,7 @@ export function DayCell({
               </div>
 
               <div className="border-t border-blue-200 pt-2">
-                <div className="text-xs font-semibold tracking-wide text-blue-600 uppercase">
+                <div className="text-primary text-xs font-semibold tracking-wide uppercase">
                   Data
                 </div>
                 <div className="mt-1 font-medium text-gray-900">
@@ -199,7 +199,7 @@ export function DayCell({
             <div className="rounded-lg border-2 border-gray-300 bg-white p-4">
               <label className="mb-3 block text-center text-lg font-semibold text-gray-900">
                 Ore da allocare:{' '}
-                <span className="text-2xl font-bold text-blue-600">
+                <span className="text-primary text-2xl font-bold">
                   {localHours}h
                 </span>
               </label>
@@ -210,7 +210,7 @@ export function DayCell({
                 step="0.5"
                 value={localHours}
                 onChange={(e) => setLocalHours(parseFloat(e.target.value))}
-                className="h-4 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-blue-600"
+                className="accent-primary h-4 w-full cursor-pointer appearance-none rounded-lg bg-gray-200"
               />
               <div className="mt-2 flex justify-between text-xs text-gray-500">
                 <span>0h</span>
@@ -266,7 +266,7 @@ export function DayCell({
               </button>
               <button
                 onClick={handleSave}
-                className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                className="bg-primary rounded-lg px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
                 disabled={isPending}
               >
                 {isPending ? 'Salvataggio...' : 'Salva'}

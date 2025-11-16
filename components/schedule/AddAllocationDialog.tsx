@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
+import React from 'react';
 
 interface AddAllocationDialogProps {
   open: boolean;
@@ -151,20 +152,20 @@ export function AddAllocationDialog({
             <div className="rounded-lg bg-blue-50 p-3 text-sm">
               <div className="grid grid-cols-2 gap-2">
                 {selectedProjects.map((proj) => (
-                  <>
-                    <div key={proj.id + '-cliente'}>
+                  <React.Fragment key={proj.id}>
+                    <div>
                       <span className="font-medium text-gray-600">
                         Cliente:
                       </span>{' '}
                       <span className="text-gray-900">{proj.client}</span>
                     </div>
-                    <div key={proj.id + '-commessa'}>
+                    <div>
                       <span className="font-medium text-gray-600">
                         Commessa:
                       </span>{' '}
                       <span className="text-gray-900">{proj.order}</span>
                     </div>
-                  </>
+                  </React.Fragment>
                 ))}
               </div>
             </div>
@@ -227,7 +228,7 @@ export function AddAllocationDialog({
           <div className="rounded-lg border-2 border-gray-300 bg-white p-4">
             <label className="mb-3 block text-center text-lg font-semibold text-gray-900">
               Ore da allocare:{' '}
-              <span className="text-2xl font-bold text-blue-600">{hours}h</span>
+              <span className="text-primary text-2xl font-bold">{hours}h</span>
             </label>
             <input
               type="range"
@@ -236,7 +237,7 @@ export function AddAllocationDialog({
               step="0.5"
               value={hours}
               onChange={(e) => setHours(parseFloat(e.target.value))}
-              className="h-4 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 accent-blue-600"
+              className="accent-primary h-4 w-full cursor-pointer appearance-none rounded-lg bg-gray-200"
             />
             <div className="mt-2 flex justify-between text-xs text-gray-500">
               <span>0h</span>
