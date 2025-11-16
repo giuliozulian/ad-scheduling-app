@@ -46,6 +46,13 @@ function VirtualizedRows({
 
   const virtualRows = rowVirtualizer.getVirtualItems();
 
+  const isPastDay = (day: string) => {
+    const today = new Date();
+    const dayDate = new Date(day);
+    today.setHours(0, 0, 0, 0);
+    return dayDate < today;
+  };
+
   return (
     <div
       style={{
@@ -104,6 +111,7 @@ function VirtualizedRows({
                   personId={row.personId}
                   date={day}
                   isWeekBoundary={weekBoundaries.has(day)}
+                  isPastDay={isPastDay(day)}
                   projectInfo={{
                     type: row.projectType,
                     client: row.projectClient,

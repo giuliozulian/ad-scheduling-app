@@ -10,6 +10,7 @@ interface DayCellProps {
   personId: number;
   date: string;
   isWeekBoundary?: boolean;
+  isPastDay?: boolean;
   projectInfo?: {
     type: string;
     client: string;
@@ -22,22 +23,26 @@ interface DayCellProps {
   };
 }
 
-function getCellColor(hours: number, dailyTotal: number): string {
+function getCellColor(
+  hours: number,
+  dailyTotal: number,
+  isPastDay: boolean
+): string {
+  if (isPastDay) {
+    return 'bg-primary/10  text-gray-400';
+  }
   // Sovrallocazione (più di 8h totali nel giorno)
   if (dailyTotal > 8) {
     return 'bg-purple-500 text-white';
   }
-
   // 8 ore = rosso
   if (hours === 8) {
     return 'bg-red-500 text-white';
   }
-
   // Tra 0.5 e 7.5 = giallo
   if (hours > 0 && hours < 8) {
     return 'bg-yellow-400 text-gray-900';
   }
-
   // 0 ore = verde chiaro
   return 'bg-green-100 text-gray-600 hover:bg-green-200';
 }
@@ -47,6 +52,7 @@ export function DayCell({
   personId,
   date,
   isWeekBoundary = false,
+  isPastDay = false,
   projectInfo,
   personInfo,
 }: DayCellProps) {
@@ -60,7 +66,7 @@ export function DayCell({
 
   const hours = getHours(projectId, personId, date);
   const dailyTotal = getDailyTotal(personId, date);
-  const cellColor = getCellColor(hours, dailyTotal);
+  const cellColor = getCellColor(hours, dailyTotal, isPastDay);
 
   const handleOpen = () => {
     setLocalHours(hours);
@@ -111,7 +117,7 @@ export function DayCell({
   return (
     <>
       <div
-        className={`shrink-0 cursor-pointer px-2 py-1 text-center transition-all hover:opacity-80 ${cellColor} ${
+        className={`flex shrink-0 cursor-pointer items-center justify-center px-2 py-1 text-center transition-all hover:opacity-80 ${cellColor} ${
           isWeekBoundary
             ? 'border-r-4 border-blue-300'
             : 'border-r border-gray-200'
