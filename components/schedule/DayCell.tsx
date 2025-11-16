@@ -35,8 +35,8 @@ function getCellColor(
   if (dailyTotal > 8) {
     return 'bg-purple-500 text-white';
   }
-  // 8 ore = rosso
-  if (hours === 8) {
+  // Se la somma delle allocazioni nel giorno è esattamente 8, tutte le celle coinvolte sono rosse
+  if (dailyTotal === 8 && hours > 0) {
     return 'bg-red-500 text-white';
   }
   // Tra 0.5 e 7.5 = giallo
