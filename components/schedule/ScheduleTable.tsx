@@ -58,6 +58,8 @@ function VirtualizedRows({
       style={{
         height: `${rowVirtualizer.getTotalSize()}px`,
         position: 'relative',
+        width: 'fit-content',
+        minWidth: '100%',
       }}
     >
       {virtualRows.map((virtualRow) => {
@@ -71,6 +73,8 @@ function VirtualizedRows({
               height: `${virtualRow.size}px`,
               transform: `translateY(${virtualRow.start}px)`,
               top: 0,
+              width: 'fit-content',
+              minWidth: '100%',
             }}
           >
             {/* Colonne fisse */}
@@ -207,7 +211,10 @@ export function ScheduleTable({ rows, month, year }: ScheduleTableProps) {
         style={{ height: 'calc(100vh - 300px)' }}
       >
         {/* Header fisso dentro lo scroll */}
-        <div className="sticky top-0 z-20 flex border-b-2 border-gray-400 bg-gray-50">
+        <div
+          className="sticky top-0 z-20 flex border-b-2 border-gray-400 bg-gray-50"
+          style={{ width: 'fit-content', minWidth: '100%' }}
+        >
           {/* Colonne fisse a sinistra */}
           <div className="sticky left-0 z-30 shrink-0 border-r-2 border-gray-400 bg-white">
             <div className="flex h-full text-sm font-bold">
