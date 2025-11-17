@@ -20,7 +20,7 @@ function verifyCredentials(request: NextRequest) {
   );
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/admin')) {
     if (!verifyCredentials(request)) {
       return new NextResponse('Autenticazione richiesta', {

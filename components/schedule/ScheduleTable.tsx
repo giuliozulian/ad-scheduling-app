@@ -259,6 +259,7 @@ export function ScheduleTable({
           days={days}
           parentRef={parentRef}
           weekBoundaries={weekBoundaries}
+          admin={admin}
         />
       </div>
 
