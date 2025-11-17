@@ -211,7 +211,7 @@ SELECT indexname FROM pg_indexes WHERE tablename = 'project_allocations';
 
 ```typescript
 virtualization: {
-  estimatedRowSize: 48,
+  estimatedRowSize: 36,
   overscan: 10, // Aumenta da 5 a 10
 }
 ```

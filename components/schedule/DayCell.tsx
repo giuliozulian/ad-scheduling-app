@@ -122,7 +122,7 @@ export function DayCell({
             ? 'border-r-4 border-blue-300'
             : 'border-r border-gray-200'
         }`}
-        style={{ width: '64px', minHeight: '40px' }}
+        style={{ width: '64px', height: '40px' }}
         onClick={handleOpen}
       >
         <div className="text-sm font-medium">{hours > 0 ? hours : ''}</div>

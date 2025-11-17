@@ -48,12 +48,6 @@ export function Filters({ clients, pms, teams, people }: FiltersProps) {
     <div className="relative z-50 mb-4 rounded-lg px-4 pt-2 pb-4">
       <div className="mb-1 flex items-center justify-between">
         <h3 className="text-sm font-bold text-white">Filtri</h3>
-        <button
-          onClick={resetFilters}
-          className="rounded-lg bg-red-200 px-3 py-1 text-sm text-red-950"
-        >
-          Reset
-        </button>
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">

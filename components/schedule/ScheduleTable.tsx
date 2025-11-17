@@ -40,7 +40,7 @@ function VirtualizedRows({
   const rowVirtualizer = useVirtualizer({
     count: filteredRows.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 48,
+    estimateSize: () => 42,
     overscan: 5,
   });
 
@@ -79,27 +79,27 @@ function VirtualizedRows({
           >
             {/* Colonne fisse */}
             <div className="sticky left-0 z-10 flex shrink-0 border-r-2 border-gray-400 bg-white">
-              <div className="w-32 border-r border-gray-200 px-2 py-2">
+              <div className="flex w-32 items-center border-r border-gray-200 px-2 py-2">
                 <div className="truncate text-sm text-gray-800">
                   {row.projectType}
                 </div>
               </div>
-              <div className="w-40 border-r border-gray-200 px-2 py-2">
+              <div className="flex w-40 items-center border-r border-gray-200 px-2 py-2">
                 <div className="truncate text-sm font-medium text-gray-900">
                   {row.projectClient}
                 </div>
               </div>
-              <div className="w-32 border-r border-gray-200 px-2 py-2">
+              <div className="flex w-32 items-center border-r border-gray-200 px-2 py-2">
                 <div className="truncate text-sm font-bold text-gray-700">
                   {row.projectOrder}
                 </div>
               </div>
-              <div className="w-32 border-r border-gray-200 px-2 py-2">
+              <div className="flex w-32 items-center border-r border-gray-200 px-2 py-2">
                 <div className="truncate text-sm text-gray-700">
                   {row.projectPm}
                 </div>
               </div>
-              <div className="w-40 px-2 py-2">
+              <div className="flex w-40 items-center px-2 py-2">
                 <div className="truncate text-sm font-bold text-gray-900">
                   {row.personLastname} {row.personFirstname}
                 </div>
@@ -232,7 +232,7 @@ export function ScheduleTable({ rows, month, year }: ScheduleTableProps) {
               <div className="w-32 border-r border-gray-200 px-2 py-2">
                 <div className="font-semibold text-gray-700">PM</div>
               </div>
-              <div className="w-40 px-2 py-2">
+              <div className="flex w-40 items-start px-2 py-2">
                 <div className="font-semibold text-gray-700">Risorsa</div>
               </div>
             </div>
