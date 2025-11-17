@@ -27,8 +27,13 @@ interface DayCellProps {
 function getCellColor(
   hours: number,
   dailyTotal: number,
-  isPastDay: boolean
+  isPastDay: boolean,
+  projectInfo?: { order: string }
 ): string {
+  // Colore custom per ferie/vacation
+  if (projectInfo && projectInfo.order === 'Vacation/Ferie' && hours > 0) {
+    return 'text-gray-900';
+  }
   if (isPastDay) {
     return 'bg-primary/10  text-gray-400';
   }
@@ -68,7 +73,7 @@ export function DayCell({
 
   const hours = getHours(projectId, personId, date);
   const dailyTotal = getDailyTotal(personId, date);
-  const cellColor = getCellColor(hours, dailyTotal, isPastDay);
+  const cellColor = getCellColor(hours, dailyTotal, isPastDay, projectInfo);
 
   const handleOpen = () => {
     if (!admin) return;
@@ -125,7 +130,14 @@ export function DayCell({
             ? 'border-r-4 border-blue-300'
             : 'border-r border-gray-200'
         } ${!admin ? 'cursor-not-allowed hover:opacity-100' : 'cursor-pointer'}`}
-        style={{ width: '64px', height: '40px' }}
+        style={{
+          width: '64px',
+          height: '40px',
+          background:
+            projectInfo && projectInfo.order === 'Vacation/Ferie' && hours > 0
+              ? '#01B4FC'
+              : undefined,
+        }}
         onClick={handleOpen}
       >
         <div className="text-sm font-medium">{hours > 0 ? hours : ''}</div>
