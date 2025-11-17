@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
-import ProjectTable from '../../components/ProjectTable';
+import ProjectTable from '../../../components/ProjectTable';
 
 export default function PeoplePage() {
   return (

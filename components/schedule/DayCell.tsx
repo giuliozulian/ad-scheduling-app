@@ -21,6 +21,7 @@ interface DayCellProps {
     firstname: string;
     lastname: string;
   };
+  admin: boolean;
 }
 
 function getCellColor(
@@ -55,6 +56,7 @@ export function DayCell({
   isPastDay = false,
   projectInfo,
   personInfo,
+  admin,
 }: DayCellProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [localHours, setLocalHours] = useState<number>(0);
@@ -69,6 +71,7 @@ export function DayCell({
   const cellColor = getCellColor(hours, dailyTotal, isPastDay);
 
   const handleOpen = () => {
+    if (!admin) return;
     setLocalHours(hours);
     setIsOpen(true);
   };
@@ -117,11 +120,11 @@ export function DayCell({
   return (
     <>
       <div
-        className={`flex shrink-0 cursor-pointer items-center justify-center px-2 py-1 text-center transition-all hover:opacity-80 ${cellColor} ${
+        className={`flex shrink-0 items-center justify-center px-2 py-1 text-center transition-all hover:opacity-80 ${cellColor} ${
           isWeekBoundary
             ? 'border-r-4 border-blue-300'
             : 'border-r border-gray-200'
-        }`}
+        } ${!admin ? 'cursor-not-allowed hover:opacity-100' : 'cursor-pointer'}`}
         style={{ width: '64px', height: '40px' }}
         onClick={handleOpen}
       >

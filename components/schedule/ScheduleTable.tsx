@@ -23,6 +23,7 @@ interface ScheduleTableProps {
   rows: ScheduleRow[];
   month: number;
   year: number;
+  admin: boolean;
 }
 
 function VirtualizedRows({
@@ -30,11 +31,13 @@ function VirtualizedRows({
   days,
   parentRef,
   weekBoundaries,
+  admin,
 }: {
   filteredRows: ScheduleRow[];
   days: string[];
   parentRef: React.RefObject<HTMLDivElement | null>;
   weekBoundaries: Set<string>;
+  admin: boolean;
 }) {
   // Virtualizzazione delle righe
   const rowVirtualizer = useVirtualizer({
@@ -110,6 +113,7 @@ function VirtualizedRows({
             <div className="flex shrink-0">
               {days.map((day) => (
                 <DayCell
+                  admin={admin}
                   key={day}
                   projectId={row.projectId}
                   personId={row.personId}
@@ -136,7 +140,12 @@ function VirtualizedRows({
   );
 }
 
-export function ScheduleTable({ rows, month, year }: ScheduleTableProps) {
+export function ScheduleTable({
+  rows,
+  month,
+  year,
+  admin,
+}: ScheduleTableProps) {
   const parentRef = useRef<HTMLDivElement>(null);
   const filters = useSchedulingStore((state) => state.filters);
   const setFilter = useSchedulingStore((state) => state.setFilter);

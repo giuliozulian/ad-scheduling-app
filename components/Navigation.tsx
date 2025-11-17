@@ -14,28 +14,30 @@ export default function Navigation() {
   return (
     <nav className="font-lg ml-auto flex gap-6">
       <Link
-        href="/people"
+        href="/admin/people"
         className={`transition-colors ${
-          isActive('/people') ? 'text-white' : 'text-gray-400 hover:text-white'
+          isActive('/admin/people')
+            ? 'font-bold text-white'
+            : 'text-gray-400 hover:text-white'
         }`}
       >
         People
       </Link>
       <Link
-        href="/projects"
+        href="/admin/projects"
         className={`transition-colors ${
-          isActive('/projects')
-            ? 'text-white'
+          isActive('/admin/projects')
+            ? 'font-bold text-white'
             : 'text-gray-400 hover:text-white'
         }`}
       >
         Projects
       </Link>
       <Link
-        href="/scheduling"
+        href="/admin/scheduling"
         className={`transition-colors ${
-          isActive('/scheduling')
-            ? 'text-white'
+          isActive('/admin/scheduling')
+            ? 'font-bold text-white'
             : 'text-gray-400 hover:text-white'
         }`}
       >

@@ -5,6 +5,7 @@ import { getMonthName } from '@/lib/date-utils';
 interface MonthNavigationProps {
   month: number;
   year: number;
+  admin: boolean;
   onMonthChange: (month: number, year: number) => void;
   onAddAllocation?: () => void;
 }
@@ -14,6 +15,7 @@ export function MonthNavigation({
   year,
   onMonthChange,
   onAddAllocation,
+  admin,
 }: MonthNavigationProps) {
   const handlePrevMonth = () => {
     if (month === 1) {
@@ -63,18 +65,20 @@ export function MonthNavigation({
         </h2>
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="flex gap-2">
-          {onAddAllocation && (
-            <button
-              onClick={onAddAllocation}
-              className="bg-primary hover:text-primary rounded-3xl px-3 py-2 text-sm font-medium text-white hover:bg-white"
-            >
-              + Aggiungi Allocazione
-            </button>
-          )}
+      {admin && (
+        <div className="flex items-center gap-4">
+          <div className="flex gap-2">
+            {onAddAllocation && (
+              <button
+                onClick={onAddAllocation}
+                className="bg-primary hover:text-primary rounded-3xl px-3 py-2 text-sm font-medium text-white hover:bg-white"
+              >
+                + Aggiungi Allocazione
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

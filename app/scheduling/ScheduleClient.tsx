@@ -13,12 +13,14 @@ interface ScheduleClientProps {
   initialData: SchedulingData;
   initialMonth: number;
   initialYear: number;
+  admin: boolean;
 }
 
 export function ScheduleClient({
   initialData,
   initialMonth,
   initialYear,
+  admin,
 }: ScheduleClientProps) {
   const [data, setData] = useState<SchedulingData>(initialData);
   const [month, setMonth] = useState(initialMonth);
@@ -30,7 +32,6 @@ export function ScheduleClient({
   const setDailyTotals = useSchedulingStore((state) => state.setDailyTotals);
   const setMonthYear = useSchedulingStore((state) => state.setMonthYear);
 
-  // Inizializza lo store con i dati del server
   useEffect(() => {
     setAllocations(data.allocations);
     setDailyTotals(data.dailyTotals);
@@ -54,6 +55,7 @@ export function ScheduleClient({
         year={year}
         onMonthChange={handleMonthChange}
         onAddAllocation={() => setIsAddDialogOpen(true)}
+        admin={admin}
       />
 
       {/* Filtri */}
@@ -73,16 +75,23 @@ export function ScheduleClient({
           </div>
         </div>
       ) : (
-        <ScheduleTable rows={data.rows} month={month} year={year} />
+        <ScheduleTable
+          rows={data.rows}
+          month={month}
+          year={year}
+          admin={admin}
+        />
       )}
 
       {/* Dialog Aggiungi Allocazione */}
-      <AddAllocationDialog
-        open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
-        projects={data.projects}
-        people={data.people}
-      />
+      {admin && (
+        <AddAllocationDialog
+          open={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          projects={data.projects}
+          people={data.people}
+        />
+      )}
     </div>
   );
 }

@@ -8,7 +8,7 @@ export default function Home() {
         <div className="flex flex-col items-start gap-8 text-base font-medium sm:flex-row">
           <Link
             className="flex min-h-40 w-1/3 items-center gap-4 rounded-lg border border-[#555] bg-[#333] p-12 text-2xl text-white hover:bg-[#444] focus:ring-2 focus:ring-[#666] focus:ring-offset-2 focus:outline-none"
-            href="/people"
+            href="/admin/people"
           >
             <PersonStanding className="h-16 w-16 stroke-1" />
             <h2>People</h2>
@@ -16,7 +16,7 @@ export default function Home() {
 
           <Link
             className="flex min-h-40 w-1/3 items-center gap-4 rounded-lg border border-[#555] bg-[#333] p-12 text-2xl text-white hover:bg-[#444] focus:ring-2 focus:ring-[#666] focus:ring-offset-2 focus:outline-none"
-            href="/projects"
+            href="/admin/projects"
           >
             <FolderKanban className="h-16 w-16 stroke-1" />
             <h2>Projects</h2>
@@ -24,7 +24,7 @@ export default function Home() {
 
           <Link
             className="flex min-h-40 w-1/3 items-center gap-4 rounded-lg border border-[#555] bg-[#333] p-12 text-2xl text-white hover:bg-[#444] focus:ring-2 focus:ring-[#666] focus:ring-offset-2 focus:outline-none"
-            href="/scheduling"
+            href="/admin/scheduling"
           >
             <Calendar className="h-16 w-16 stroke-1" />
             <h2>Scheduling</h2>

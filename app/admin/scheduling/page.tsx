@@ -1,6 +1,6 @@
+import { getScheduling } from '@/app/scheduling/actions';
+import { ScheduleClient } from '@/app/scheduling/ScheduleClient';
 import { Suspense } from 'react';
-import { getScheduling } from './actions';
-import { ScheduleClient } from './ScheduleClient';
 
 export default async function SchedulingPage() {
   const currentDate = new Date();
@@ -29,7 +29,7 @@ export default async function SchedulingPage() {
           initialData={data}
           initialMonth={month}
           initialYear={year}
-          admin={false}
+          admin={true}
         />
       </Suspense>
     </div>
