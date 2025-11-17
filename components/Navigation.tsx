@@ -12,7 +12,7 @@ export default function Navigation() {
   };
 
   return (
-    <nav className="font-lg ml-auto flex gap-6 font-bold">
+    <nav className="font-lg ml-auto flex gap-6">
       <Link
         href="/people"
         className={`transition-colors ${
