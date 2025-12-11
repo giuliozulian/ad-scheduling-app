@@ -18,8 +18,7 @@ function Pagination({ className, children, ...props }: PaginationProps) {
   );
 }
 
-export interface PaginationItemProps
-  extends React.LiHTMLAttributes<HTMLLIElement> {}
+export interface PaginationItemProps extends React.LiHTMLAttributes<HTMLLIElement> {}
 
 function PaginationItem({ className, ...props }: PaginationItemProps) {
   return <li className={cn('inline-block', className)} {...props} />;

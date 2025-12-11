@@ -48,8 +48,17 @@ export function AddAllocationDialog({
   const [isPending, startTransition] = useTransition();
   const [dailyTotalFromDb, setDailyTotalFromDb] = useState<number>(0);
 
+  console.log('date', date);
   const setHoursLocal = useSchedulingStore((state) => state.setHoursLocal);
   const getDailyTotal = useSchedulingStore((state) => state.getDailyTotal);
+
+  // Helper per convertire Date in stringa yyyy-mm-dd locale
+  const formatLocalDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   const handleSave = async () => {
     if (
@@ -64,21 +73,17 @@ export function AddAllocationDialog({
 
     startTransition(async () => {
       let allSuccess = true;
+      const localDate = formatLocalDate(date);
       for (const projectId of projectIds) {
         for (const personId of personIds) {
           const result = await saveAllocation({
             projectId,
             personId,
-            date: date.toISOString().slice(0, 10), // yyyy-mm-dd
+            date: localDate,
             hours,
           });
           if (result.success) {
-            setHoursLocal(
-              projectId,
-              personId,
-              date.toISOString().slice(0, 10),
-              hours
-            );
+            setHoursLocal(projectId, personId, localDate, hours);
           } else {
             allSuccess = false;
             alert(
@@ -102,21 +107,8 @@ export function AddAllocationDialog({
   // Fetch daily total from DB when personIds and date change (only if one person selected)
   useEffect(() => {
     if (personIds.length === 1 && date) {
-      // DEBUG: log local date and UTC date
-      console.log(
-        'Selected JS date:',
-        date,
-        'ISO:',
-        date.toISOString(),
-        'Local:',
-        date.toLocaleDateString()
-      );
-      // Always use local date (yyyy-mm-dd) to avoid timezone shift
-      const localDate = new Date(
-        date.getTime() - date.getTimezoneOffset() * 60000
-      )
-        .toISOString()
-        .slice(0, 10);
+      const localDate = formatLocalDate(date);
+      console.log('Selected date (local):', localDate);
       getPersonDailyTotal(personIds[0], localDate).then((result) => {
         setDailyTotalFromDb(Number(result?.hours ?? 0));
       });
@@ -131,7 +123,7 @@ export function AddAllocationDialog({
   // Per la preview del totale giornaliero mostriamo il primo selezionato (se presente)
   const dailyTotal =
     personIds.length === 1 && date
-      ? getDailyTotal(personIds[0], date.toISOString().slice(0, 10))
+      ? getDailyTotal(personIds[0], formatLocalDate(date))
       : 0;
   const selectedProjects = projects.filter((p) => projectIds.includes(p.id));
 
