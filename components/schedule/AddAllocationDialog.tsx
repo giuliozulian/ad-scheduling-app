@@ -104,7 +104,6 @@ export function AddAllocationDialog({
     });
   };
 
-  // Fetch daily total from DB when personIds and date change (only if one person selected)
   useEffect(() => {
     if (personIds.length === 1 && date) {
       const localDate = formatLocalDate(date);
