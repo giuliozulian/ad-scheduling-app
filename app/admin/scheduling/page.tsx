@@ -8,6 +8,7 @@ export default async function SchedulingPage() {
   const year = currentDate.getFullYear();
 
   const data = await getScheduling(month, year);
+  console.log('currentDate:', currentDate);
 
   return (
     <div className="container mx-auto pb-8">
